@@ -1,25 +1,56 @@
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 
 import { Screen, Button, Input, Avatar } from "../../components/ui";
+import { useAuthStore } from "../../stores/auth.store";
+import { profilesService } from "../../services/profiles.service";
 import { getInitials, getRandomPlayerColor } from "../../lib/utils";
 
 /**
- * Onboarding — 3 écrans max (Arbitrages §2.1).
- * Étape 1 : pseudo + aperçu avatar.
- * Le branchement Supabase viendra au Sprint 1.
+ * Onboarding — création du profil joueur (Arbitrages §2.1).
+ *
+ * Affiché après la première connexion si le profil n'existe pas encore.
+ * Crée le profil dans Supabase (table profiles).
+ *
+ * Le trigger SQL crée un profil minimal à l'inscription,
+ * mais l'onboarding permet de choisir un vrai pseudo.
  */
 export default function OnboardingScreen() {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const setIsOnboarded = useAuthStore((s) => s.setIsOnboarded);
+
   const [pseudo, setPseudo] = useState("");
   const [color] = useState(getRandomPlayerColor);
+  const [isLoading, setIsLoading] = useState(false);
 
   const initials = pseudo.length >= 2 ? getInitials(pseudo) : "??";
+  const canContinue = pseudo.trim().length >= 3;
 
-  const handleContinue = () => {
-    // TODO: Créer le profil dans Supabase
-    router.replace("/(tabs)/home");
+  const handleContinue = async () => {
+    if (!canContinue || !user) return;
+
+    setIsLoading(true);
+
+    try {
+      const trimmedPseudo = pseudo.trim();
+      const playerInitials = getInitials(trimmedPseudo);
+
+      await profilesService.update(user.id, {
+        pseudo: trimmedPseudo,
+        initials: playerInitials,
+        color,
+      });
+
+      setIsOnboarded(true);
+      router.replace("/(tabs)/home");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      Alert.alert("Erreur", message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -59,7 +90,8 @@ export default function OnboardingScreen() {
           title="C'est parti"
           size="lg"
           fullWidth
-          disabled={pseudo.trim().length < 3}
+          disabled={!canContinue}
+          isLoading={isLoading}
           onPress={handleContinue}
         />
       </View>
