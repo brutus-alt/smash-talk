@@ -11,6 +11,7 @@
 import { useRef, useCallback, useState } from "react";
 import { Share, Platform } from "react-native";
 import type { View } from "react-native";
+import { analytics } from "../lib/analytics";
 
 // react-native-view-shot sera importé dynamiquement
 // pour ne pas crasher si le module n'est pas installé
@@ -51,6 +52,8 @@ export function useShare() {
           ? { url: uri }
           : { message: fallbackText ?? "Smash Talk 🏓", title: "Smash Talk" }
       );
+
+      analytics.track("share_triggered");
     } catch (err) {
       // L'utilisateur a annulé le partage — pas une erreur
       if (err instanceof Error && err.message !== "User did not share") {

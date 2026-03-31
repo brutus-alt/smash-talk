@@ -8,6 +8,8 @@ import { View, ActivityIndicator } from "react-native";
 import { queryClient } from "../lib/query-client";
 import { supabase } from "../services/supabase";
 import { useAuthStore } from "../stores/auth.store";
+import { analytics } from "../lib/analytics";
+import { useRegisterPushToken, useNotificationListener } from "../hooks/use-notifications";
 
 import "../../global.css";
 
@@ -23,7 +25,21 @@ import "../../global.css";
 function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
-  const { session, isLoading } = useAuthStore();
+  const { session, isLoading, user } = useAuthStore();
+
+  // Enregistrer le push token quand l'utilisateur est connecté
+  useRegisterPushToken();
+
+  // Écouter les notifications entrantes
+  useNotificationListener();
+
+  // Identifier l'utilisateur dans PostHog
+  useEffect(() => {
+    if (user) {
+      analytics.identify(user.id, { email: user.email ?? "" });
+      analytics.track("app_opened");
+    }
+  }, [user]);
 
   useEffect(() => {
     if (isLoading) return;
