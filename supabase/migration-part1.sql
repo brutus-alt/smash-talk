@@ -1,3 +1,9 @@
+-- ============================================================
+-- SMASH TALK — PARTIE 1 : CRÉATION DES TABLES
+-- Exécuter EN PREMIER dans le SQL Editor de Supabase
+-- ============================================================
+
+-- ─── 1. PROFILES ───
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   pseudo TEXT NOT NULL CHECK (char_length(pseudo) BETWEEN 3 AND 20),
@@ -7,6 +13,7 @@ CREATE TABLE profiles (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ─── 2. LEAGUES ───
 CREATE TABLE leagues (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL CHECK (char_length(name) BETWEEN 3 AND 30),
@@ -16,6 +23,7 @@ CREATE TABLE leagues (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ─── 3. LEAGUE_MEMBERS ───
 CREATE TABLE league_members (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   league_id UUID NOT NULL REFERENCES leagues(id) ON DELETE CASCADE,
@@ -26,6 +34,7 @@ CREATE TABLE league_members (
   UNIQUE (league_id, user_id)
 );
 
+-- ─── 4. MATCHES ───
 CREATE TABLE matches (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   league_id UUID NOT NULL REFERENCES leagues(id) ON DELETE CASCADE,
@@ -45,6 +54,7 @@ CREATE TABLE matches (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ─── 5. BADGES ───
 CREATE TABLE badges (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -53,6 +63,7 @@ CREATE TABLE badges (
   icon TEXT NOT NULL
 );
 
+-- ─── 6. USER_BADGES ───
 CREATE TABLE user_badges (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -62,6 +73,7 @@ CREATE TABLE user_badges (
   UNIQUE (user_id, badge_id, league_id)
 );
 
+-- ─── 7. PUSH_TOKENS ───
 CREATE TABLE push_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -69,16 +81,3 @@ CREATE TABLE push_tokens (
   platform TEXT NOT NULL CHECK (platform IN ('ios', 'android')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-```
-
-5. Sauvegarde avec **Ctrl + S**
-
-Puis dans le Terminal :
-```
-git add .
-```
-```
-git commit -m "feat: add Supabase schema - 7 tables + RLS + badges seed"
-```
-```
-git push
