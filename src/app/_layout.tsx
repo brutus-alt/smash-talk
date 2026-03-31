@@ -90,6 +90,14 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="match/success"
+              options={{
+                presentation: "modal",
+                animation: "slide_from_bottom",
+                gestureEnabled: false,
+              }}
+            />
+            <Stack.Screen
               name="league/create"
               options={{
                 presentation: "modal",
