@@ -1,25 +1,37 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 
 import { ModalHeader, Button, Avatar, Stepper, Card, Pill } from "../../components/ui";
-import { PLAYERS, getPlayer } from "../../lib/mock-data";
+import { useAuthStore } from "../../stores/auth.store";
+import { useLeagueStore } from "../../stores/league.store";
+import { useLeagueMembers } from "../../hooks/use-league-members";
+import { useAddMatch } from "../../hooks/use-add-match";
+import { determineWinner } from "../../domain/match-validation";
+import type { SetScore } from "../../domain/types";
 
 /**
- * Modale d'ajout de match — 3 étapes mockées (Arbitrages §3).
- * Étape 1 : Sélection des 4 joueurs
- * Étape 2 : Score par set (steppers)
- * Étape 3 : Confirmation
+ * Modale d'ajout de match — 3 étapes, branchée sur Supabase.
+ * Utilise useLeagueMembers pour la sélection des joueurs.
+ * Utilise useAddMatch pour l'insertion + badges + notif.
  */
 
 type Step = 0 | 1 | 2;
 
 export default function AddMatchScreen() {
   const router = useRouter();
+  const userId = useAuthStore((s) => s.user?.id);
+  const activeLeagueId = useLeagueStore((s) => s.activeLeagueId);
+  const { data: members } = useLeagueMembers(activeLeagueId);
+  const addMatch = useAddMatch();
+
   const [step, setStep] = useState<Step>(0);
   const [selected, setSelected] = useState<string[]>([]);
-  const [sets, setSets] = useState([{ a: 0, b: 0 }, { a: 0, b: 0 }]);
+  const [sets, setSets] = useState<SetScore[]>([
+    { scoreA: 0, scoreB: 0 },
+    { scoreA: 0, scoreB: 0 },
+  ]);
 
   const togglePlayer = (id: string) => {
     if (selected.includes(id)) {
@@ -32,12 +44,61 @@ export default function AddMatchScreen() {
   const updateSet = (idx: number, team: "a" | "b", delta: number) => {
     setSets(sets.map((s, i) =>
       i === idx
-        ? { ...s, [team]: Math.max(0, Math.min(99, s[team] + delta)) }
+        ? {
+            ...s,
+            [team === "a" ? "scoreA" : "scoreB"]: Math.max(
+              0,
+              Math.min(99, (team === "a" ? s.scoreA : s.scoreB) + delta)
+            ),
+          }
         : s
     ));
   };
 
+  const getProfile = (id: string) => {
+    const m = members?.find((m) => m.user_id === id);
+    return {
+      pseudo: m?.profile.pseudo ?? "???",
+      initials: m?.profile.initials ?? "??",
+      color: m?.profile.color ?? "#6B7280",
+    };
+  };
+
+  const handleSubmit = async () => {
+    if (!activeLeagueId || !userId || selected.length !== 4) return;
+
+    const winner = determineWinner(sets);
+    if (!winner) {
+      Alert.alert("Score invalide", "Impossible de déterminer le gagnant. Vérifie les scores.");
+      return;
+    }
+
+    try {
+      await addMatch.mutateAsync({
+        league_id: activeLeagueId,
+        recorded_by: userId,
+        team_a_player_1: selected[0]!,
+        team_a_player_2: selected[1]!,
+        team_b_player_1: selected[2]!,
+        team_b_player_2: selected[3]!,
+        score_set_1_a: sets[0]!.scoreA,
+        score_set_1_b: sets[0]!.scoreB,
+        score_set_2_a: sets[1]!.scoreA,
+        score_set_2_b: sets[1]!.scoreB,
+        score_set_3_a: sets[2]?.scoreA ?? null,
+        score_set_3_b: sets[2]?.scoreB ?? null,
+        winner,
+      });
+
+      router.back();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      Alert.alert("Erreur", message);
+    }
+  };
+
   const stepLabels = ["Équipes", "Score", "Confirmation"];
+  const players = members ?? [];
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
@@ -66,24 +127,24 @@ export default function AddMatchScreen() {
           </Text>
 
           <View className="flex-row flex-wrap gap-3 justify-center">
-            {PLAYERS.map((player) => {
-              const idx = selected.indexOf(player.id);
+            {players.map((member) => {
+              const idx = selected.indexOf(member.user_id);
               const isSelected = idx !== -1;
               const teamLabel = idx === 0 || idx === 1 ? "A" : idx === 2 || idx === 3 ? "B" : null;
 
               return (
                 <Pressable
-                  key={player.id}
-                  onPress={() => togglePlayer(player.id)}
+                  key={member.user_id}
+                  onPress={() => togglePlayer(member.user_id)}
                   className={`items-center gap-1.5 p-2 rounded-xl w-20 ${isSelected ? "bg-surface-elevated" : ""}`}
                 >
                   <Avatar
-                    initials={player.initials}
-                    color={player.color}
+                    initials={member.profile.initials}
+                    color={member.profile.color}
                     size="lg"
                     ring={isSelected}
                   />
-                  <Text className="text-text text-xs font-semibold">{player.pseudo}</Text>
+                  <Text className="text-text text-xs font-semibold">{member.profile.pseudo}</Text>
                   {teamLabel ? (
                     <Pill variant={teamLabel === "A" ? "accent" : "warning"}>{teamLabel}</Pill>
                   ) : null}
@@ -107,37 +168,35 @@ export default function AddMatchScreen() {
       {/* Step 1 — Score entry */}
       {step === 1 ? (
         <View className="flex-1 px-6 gap-6">
-          {/* Team labels */}
           <View className="flex-row justify-around">
             <View className="items-center gap-1">
               <View className="flex-row gap-1">
-                <Avatar initials={getPlayer(selected[0] ?? "p1").initials} color={getPlayer(selected[0] ?? "p1").color} size="sm" />
-                <Avatar initials={getPlayer(selected[1] ?? "p2").initials} color={getPlayer(selected[1] ?? "p2").color} size="sm" />
+                <Avatar {...getProfile(selected[0] ?? "")} size="sm" />
+                <Avatar {...getProfile(selected[1] ?? "")} size="sm" />
               </View>
               <Text className="text-text-secondary text-xs">Équipe A</Text>
             </View>
             <View className="items-center gap-1">
               <View className="flex-row gap-1">
-                <Avatar initials={getPlayer(selected[2] ?? "p3").initials} color={getPlayer(selected[2] ?? "p3").color} size="sm" />
-                <Avatar initials={getPlayer(selected[3] ?? "p4").initials} color={getPlayer(selected[3] ?? "p4").color} size="sm" />
+                <Avatar {...getProfile(selected[2] ?? "")} size="sm" />
+                <Avatar {...getProfile(selected[3] ?? "")} size="sm" />
               </View>
               <Text className="text-text-secondary text-xs">Équipe B</Text>
             </View>
           </View>
 
-          {/* Sets */}
           {sets.map((set, idx) => (
             <Card key={idx} variant="outlined">
               <Text className="text-text-muted text-xs text-center mb-3">Set {idx + 1}</Text>
               <View className="flex-row items-center justify-around">
                 <Stepper
-                  value={set.a}
+                  value={set.scoreA}
                   onIncrement={() => updateSet(idx, "a", 1)}
                   onDecrement={() => updateSet(idx, "a", -1)}
                 />
                 <Text className="text-text-muted text-lg font-bold">—</Text>
                 <Stepper
-                  value={set.b}
+                  value={set.scoreB}
                   onIncrement={() => updateSet(idx, "b", 1)}
                   onDecrement={() => updateSet(idx, "b", -1)}
                 />
@@ -146,12 +205,7 @@ export default function AddMatchScreen() {
           ))}
 
           <View className="mt-auto mb-6">
-            <Button
-              title="Suivant"
-              size="lg"
-              fullWidth
-              onPress={() => setStep(2)}
-            />
+            <Button title="Suivant" size="lg" fullWidth onPress={() => setStep(2)} />
           </View>
         </View>
       ) : null}
@@ -161,30 +215,28 @@ export default function AddMatchScreen() {
         <View className="flex-1 px-6 gap-6">
           <Card variant="elevated">
             <Text className="text-text-muted text-xs text-center mb-3">Récapitulatif</Text>
-
             <View className="flex-row justify-around mb-4">
               <View className="items-center gap-1">
                 <Text className="text-text text-sm font-semibold">
-                  {getPlayer(selected[0] ?? "p1").pseudo} + {getPlayer(selected[1] ?? "p2").pseudo}
+                  {getProfile(selected[0] ?? "").pseudo} + {getProfile(selected[1] ?? "").pseudo}
                 </Text>
                 <Pill variant="accent">Équipe A</Pill>
               </View>
               <Text className="text-text-muted self-center">vs</Text>
               <View className="items-center gap-1">
                 <Text className="text-text text-sm font-semibold">
-                  {getPlayer(selected[2] ?? "p3").pseudo} + {getPlayer(selected[3] ?? "p4").pseudo}
+                  {getProfile(selected[2] ?? "").pseudo} + {getProfile(selected[3] ?? "").pseudo}
                 </Text>
                 <Pill variant="warning">Équipe B</Pill>
               </View>
             </View>
-
             {sets.map((set, idx) => (
               <Text
                 key={idx}
                 className="text-text text-center text-lg font-bold"
                 style={{ fontVariant: ["tabular-nums"] }}
               >
-                Set {idx + 1} : {set.a} - {set.b}
+                Set {idx + 1} : {set.scoreA} - {set.scoreB}
               </Text>
             ))}
           </Card>
@@ -194,18 +246,10 @@ export default function AddMatchScreen() {
               title="Valider le match ✓"
               size="lg"
               fullWidth
-              onPress={() => {
-                // TODO: addMatchAction
-                router.back();
-              }}
+              isLoading={addMatch.isPending}
+              onPress={handleSubmit}
             />
-            <Button
-              title="Modifier"
-              variant="ghost"
-              size="md"
-              fullWidth
-              onPress={() => setStep(0)}
-            />
+            <Button title="Modifier" variant="ghost" size="md" fullWidth onPress={() => setStep(0)} />
           </View>
         </View>
       ) : null}

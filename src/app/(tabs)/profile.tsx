@@ -1,5 +1,4 @@
 import { View } from "react-native";
-import { useRouter } from "expo-router";
 
 import {
   Screen,
@@ -11,112 +10,100 @@ import {
   Button,
 } from "../../components/ui";
 import { PlayerHero } from "../../components/player-hero";
-import { RivalryCard } from "../../components/rivalry-card";
-import { RANKINGS, BADGES, RIVALRIES, getPlayer } from "../../lib/mock-data";
+import { useAuthStore } from "../../stores/auth.store";
+import { useLeagueStore } from "../../stores/league.store";
+import { useMyProfile, useSignOut } from "../../hooks/use-auth";
+import { usePlayerStats } from "../../hooks/use-player-stats";
+import { useRankings } from "../../hooks/use-rankings";
+import { useBadges } from "../../hooks/use-badges";
 
 /**
  * Profil — Tab 4.
- * Profil du joueur connecté (Nico — p1).
- * Résout les données mock → props résolues pour chaque composant.
+ * Branché sur Supabase : profil réel, stats, badges.
  */
 export default function ProfileScreen() {
-  const router = useRouter();
-  const myId = "p1";
-  const me = getPlayer(myId);
-  const myRanking = RANKINGS.find((r) => r.playerId === myId)!;
+  const userId = useAuthStore((s) => s.user?.id) ?? null;
+  const activeLeagueId = useLeagueStore((s) => s.activeLeagueId);
+  const signOut = useSignOut();
 
-  const myRivalries = RIVALRIES.filter(
-    (r) => r.playerAId === myId || r.playerBId === myId
-  );
+  const { data: profile } = useMyProfile();
+  const { data: stats } = usePlayerStats(activeLeagueId, userId);
+  const { data: rankings } = useRankings(activeLeagueId);
+  const { data: badges } = useBadges(userId, activeLeagueId);
 
-  const earnedBadges = BADGES.filter((b) => b.earnedAt !== null);
+  const myRanking = rankings?.find((r) => r.userId === userId);
+  const earnedCount = badges?.filter((b) => b.earnedAt !== null).length ?? 0;
 
   return (
     <Screen mode="scroll">
-      {/* Hero — props résolues */}
+      {/* Hero */}
       <PlayerHero
-        pseudo={me.pseudo}
-        initials={me.initials}
-        color={me.color}
-        rank={myRanking.rank}
-        matches={myRanking.matches}
-        wins={myRanking.wins}
-        losses={myRanking.losses}
-        winRate={myRanking.winRate}
-        streak={myRanking.streak}
-        streakType={myRanking.streakType}
+        pseudo={profile?.pseudo ?? "Joueur"}
+        initials={profile?.initials ?? "??"}
+        color={profile?.color ?? "#3B82F6"}
+        rank={myRanking?.rank ?? 0}
+        matches={stats?.totalMatches ?? 0}
+        wins={stats?.wins ?? 0}
+        losses={stats?.losses ?? 0}
+        winRate={stats?.winRate ?? 0}
+        streak={stats?.currentStreak ?? 0}
+        streakType={stats?.currentStreakType ?? "none"}
       />
 
-      {/* Detailed stats */}
-      <View>
-        <SectionHeader title="Statistiques détaillées" />
-        <Card>
-          <StatRow label="Matchs joués" value={myRanking.matches} />
-          <Divider />
-          <StatRow label="Victoires" value={myRanking.wins} highlight="accent" />
-          <Divider />
-          <StatRow label="Défaites" value={myRanking.losses} highlight="danger" />
-          <Divider />
-          <StatRow label="Ratio victoires" value={`${Math.round(myRanking.winRate * 100)}%`} />
-          <Divider />
-          <StatRow
-            label="Série en cours"
-            value={`${myRanking.streak} ${myRanking.streakType === "win" ? "V" : "D"}`}
-            highlight={myRanking.streakType === "win" ? "accent" : "danger"}
-          />
-          <Divider />
-          <StatRow
-            label="Position"
-            value={`#${myRanking.rank}`}
-            highlight={myRanking.rank === 1 ? "warning" : "default"}
-          />
-        </Card>
-      </View>
+      {/* Stats détaillées */}
+      {stats ? (
+        <View>
+          <SectionHeader title="Statistiques détaillées" />
+          <Card>
+            <StatRow label="Matchs joués" value={stats.totalMatches} />
+            <Divider />
+            <StatRow label="Victoires" value={stats.wins} highlight="accent" />
+            <Divider />
+            <StatRow label="Défaites" value={stats.losses} highlight="danger" />
+            <Divider />
+            <StatRow label="Ratio" value={`${Math.round(stats.winRate * 100)}%`} />
+            <Divider />
+            <StatRow
+              label="Meilleure série"
+              value={`${stats.bestWinStreak} V`}
+              highlight="accent"
+            />
+            <Divider />
+            <StatRow label="Sets gagnés" value={stats.totalSetsWon} />
+            <Divider />
+            <StatRow label="Sets perdus" value={stats.totalSetsLost} highlight="danger" />
+          </Card>
+        </View>
+      ) : null}
 
       {/* Badges */}
-      <View>
-        <SectionHeader title="Badges" subtitle={`${earnedBadges.length}/${BADGES.length}`} />
-        <Card>
-          <View className="flex-row flex-wrap gap-3 justify-center py-1">
-            {BADGES.map((badge) => (
-              <BadgeIcon
-                key={badge.id}
-                name={badge.name}
-                icon={badge.icon}
-                earned={badge.earnedAt !== null}
-                size="sm"
-              />
-            ))}
-          </View>
-        </Card>
-      </View>
-
-      {/* Rivalités — props résolues */}
-      <View>
-        <SectionHeader title="Mes rivalités" subtitle={`${myRivalries.length}`} />
-        <View className="gap-3">
-          {myRivalries.map((r, i) => (
-            <RivalryCard
-              key={i}
-              playerA={getPlayer(r.playerAId)}
-              playerB={getPlayer(r.playerBId)}
-              playerAWins={r.playerAWins}
-              playerBWins={r.playerBWins}
-              totalMatches={r.totalMatches}
-              lastMatchDate={r.lastMatchDate}
-            />
-          ))}
+      {badges ? (
+        <View>
+          <SectionHeader title="Badges" subtitle={`${earnedCount}/${badges.length}`} />
+          <Card>
+            <View className="flex-row flex-wrap gap-3 justify-center py-1">
+              {badges.map((badge) => (
+                <BadgeIcon
+                  key={badge.id}
+                  name={badge.name}
+                  icon={badge.icon}
+                  earned={badge.earnedAt !== null}
+                  size="sm"
+                />
+              ))}
+            </View>
+          </Card>
         </View>
-      </View>
+      ) : null}
 
-      {/* Settings */}
-      <View className="mt-2 mb-4">
+      {/* Déconnexion */}
+      <View className="mt-4 mb-4">
         <Button
-          title="Paramètres"
+          title="Se déconnecter"
           variant="ghost"
           size="md"
           fullWidth
-          onPress={() => {}}
+          onPress={signOut}
         />
       </View>
     </Screen>
