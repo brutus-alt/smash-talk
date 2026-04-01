@@ -94,7 +94,30 @@ export default function AddMatchScreen() {
       });
 
       hapticSuccess();
-      router.back();
+
+      // Construire les params pour l'écran de succès
+      const winnerSide = winner === "team_a" ? "a" : "b";
+      const scoreText = sets
+        .filter((s) => s.scoreA > 0 || s.scoreB > 0)
+        .map((s) => `${s.scoreA}-${s.scoreB}`)
+        .join(" / ");
+
+      const p = (id: string) => getProfile(id);
+
+      router.replace({
+        pathname: "/match/success",
+        params: {
+          teamANames: `${p(selected[0]!).pseudo},${p(selected[1]!).pseudo}`,
+          teamBNames: `${p(selected[2]!).pseudo},${p(selected[3]!).pseudo}`,
+          teamAInitials: `${p(selected[0]!).initials},${p(selected[1]!).initials}`,
+          teamBInitials: `${p(selected[2]!).initials},${p(selected[3]!).initials}`,
+          teamAColors: `${p(selected[0]!).color},${p(selected[1]!).color}`,
+          teamBColors: `${p(selected[2]!).color},${p(selected[3]!).color}`,
+          score: scoreText,
+          winner: winnerSide,
+          date: new Date().toISOString().split("T")[0],
+        },
+      });
     } catch (err) {
       hapticError();
       const message = err instanceof Error ? err.message : "Erreur inconnue";
@@ -192,7 +215,14 @@ export default function AddMatchScreen() {
 
           {sets.map((set, idx) => (
             <Card key={idx} variant="outlined">
-              <Text className="text-text-muted text-xs text-center mb-3">Set {idx + 1}</Text>
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-text-muted text-xs">Set {idx + 1}</Text>
+                {idx === 2 ? (
+                  <Pressable onPress={() => { hapticLight(); setSets(sets.slice(0, 2)); }}>
+                    <Text className="text-danger text-xs font-semibold">Supprimer</Text>
+                  </Pressable>
+                ) : null}
+              </View>
               <View className="flex-row items-center justify-around">
                 <Stepper
                   value={set.scoreA}
@@ -208,6 +238,18 @@ export default function AddMatchScreen() {
               </View>
             </Card>
           ))}
+
+          {sets.length < 3 ? (
+            <Button
+              title="+ Ajouter le 3e set"
+              variant="ghost"
+              size="sm"
+              onPress={() => {
+                hapticLight();
+                setSets([...sets, { scoreA: 0, scoreB: 0 }]);
+              }}
+            />
+          ) : null}
 
           <View className="mt-auto mb-6">
             <Button title="Suivant" size="lg" fullWidth onPress={() => { hapticMedium(); setStep(2); }} />

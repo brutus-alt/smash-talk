@@ -1,10 +1,10 @@
-import { View, Text, Pressable, ScrollView, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, Alert, Share } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 
 import { ModalHeader, Button, Input, Card, Pill } from "../../components/ui";
-import { FadeInUp } from "../../components/ui/animated-view";
+import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { useAuthStore } from "../../stores/auth.store";
 import { useLeagueStore } from "../../stores/league.store";
 import { useCreateLeague } from "../../hooks/use-leagues";
@@ -24,6 +24,8 @@ export default function CreateLeagueScreen() {
 
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState("⚡");
+  const [createdInviteCode, setCreatedInviteCode] = useState<string | null>(null);
+  const [createdName, setCreatedName] = useState("");
 
   const canCreate = name.trim().length >= 3;
 
@@ -37,13 +39,77 @@ export default function CreateLeagueScreen() {
         userId,
       });
 
+      hapticSuccess();
       setActiveLeague(league.id);
-      router.back();
+      setCreatedInviteCode(league.invite_code);
+      setCreatedName(league.name);
     } catch (err) {
+      hapticError();
       const message = err instanceof Error ? err.message : "Erreur inconnue";
       Alert.alert("Erreur", message);
     }
   };
+
+  const handleShareCode = async () => {
+    if (!createdInviteCode) return;
+    await Share.share({
+      message: `🏓 Rejoins ma ligue "${createdName}" sur Smash Talk !\nCode d'invitation : ${createdInviteCode}`,
+    });
+  };
+
+  // Écran de succès avec le code d'invitation
+  if (createdInviteCode) {
+    return (
+      <SafeAreaView className="flex-1 bg-surface">
+        <ModalHeader title="Ligue créée" onClose={() => router.back()} />
+
+        <View className="flex-1 justify-center items-center gap-6 px-6">
+          <ScaleBounce delay={0}>
+            <Text className="text-5xl">{emoji}</Text>
+          </ScaleBounce>
+
+          <FadeInUp delay={200}>
+            <View className="items-center gap-2">
+              <Text className="text-text text-2xl font-bold text-center">
+                {createdName} est prête !
+              </Text>
+              <Text className="text-text-secondary text-base text-center">
+                Partage ce code à tes potes pour qu'ils rejoignent l'arène.
+              </Text>
+            </View>
+          </FadeInUp>
+
+          <FadeInUp delay={350}>
+            <View className="bg-surface-elevated rounded-2xl px-8 py-5 items-center">
+              <Text className="text-text-muted text-xs mb-2">CODE D'INVITATION</Text>
+              <Text
+                className="text-accent text-3xl font-black tracking-widest"
+                selectable
+              >
+                {createdInviteCode}
+              </Text>
+            </View>
+          </FadeInUp>
+        </View>
+
+        <View className="px-6 mb-8 gap-3">
+          <Button
+            title="Envoyer aux potes 📤"
+            size="lg"
+            fullWidth
+            onPress={handleShareCode}
+          />
+          <Button
+            title="C'est bon, allons-y"
+            variant="ghost"
+            size="md"
+            fullWidth
+            onPress={() => router.back()}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-surface">

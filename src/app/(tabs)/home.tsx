@@ -129,7 +129,7 @@ export default function HomeScreen() {
       {top3.length > 0 ? (
         <FadeInUp delay={200}>
           <View>
-            <SectionHeader title="Qui domine ?" actionLabel="Voir tout" onAction={() => {}} />
+            <SectionHeader title="Qui domine ?" actionLabel="Voir tout" onAction={() => router.push("/(tabs)/ranking")} />
             <View className="bg-surface-card rounded-xl overflow-hidden">
               {top3.map((r) => {
                 const p = resolvePlayer(r.userId);

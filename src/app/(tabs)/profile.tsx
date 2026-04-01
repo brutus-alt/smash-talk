@@ -8,6 +8,7 @@ import {
   Divider,
   StatRow,
   Button,
+  EmptyState,
 } from "../../components/ui";
 import { FadeInUp } from "../../components/ui/animated-view";
 import { PlayerHero } from "../../components/player-hero";
@@ -34,6 +35,44 @@ export default function ProfileScreen() {
 
   const myRanking = rankings?.find((r) => r.userId === userId);
   const earnedCount = badges?.filter((b) => b.earnedAt !== null).length ?? 0;
+
+  // Pas de ligue → profil minimal avec déconnexion
+  if (!activeLeagueId) {
+    return (
+      <Screen mode="scroll">
+        <FadeInUp delay={0}>
+          <PlayerHero
+            pseudo={profile?.pseudo ?? "Joueur"}
+            initials={profile?.initials ?? "??"}
+            color={profile?.color ?? "#3B82F6"}
+            rank={0}
+            matches={0}
+            wins={0}
+            losses={0}
+            winRate={0}
+            streak={0}
+            streakType="none"
+          />
+        </FadeInUp>
+
+        <EmptyState
+          emoji="🏆"
+          title="Pas encore dans l'arène"
+          description="Rejoins une ligue pour commencer à accumuler des stats et des badges."
+        />
+
+        <View className="mt-4 mb-4">
+          <Button
+            title="Quitter l'arène"
+            variant="ghost"
+            size="md"
+            fullWidth
+            onPress={signOut}
+          />
+        </View>
+      </Screen>
+    );
+  }
 
   return (
     <Screen mode="scroll">
