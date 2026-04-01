@@ -5,12 +5,11 @@ import { colors } from "../lib/theme";
 /**
  * Template 1 — Résumé de match pour partage (Arbitrages §1.4).
  *
- * Format 9:16 (story Instagram) capturé via react-native-view-shot.
- * Fond sombre, accent couleur, logo Smash Talk.
+ * Redesign : fond avec dégradé simulé (bandes de couleur),
+ * score XXL, bannière de victoire, avatars plus gros.
+ * Format 9:16 (story Instagram) + 1:1 (WhatsApp).
  *
- * Ce composant est rendu hors écran, capturé en image, puis partagé.
- * Il ne doit pas utiliser NativeWind (le rendu hors écran ne le supporte pas toujours).
- * → On utilise des styles inline.
+ * Styles inline uniquement (pas de NativeWind pour le rendu hors écran).
  */
 
 type PlayerDisplay = {
@@ -22,15 +21,15 @@ type PlayerDisplay = {
 type ShareMatchCardProps = {
   teamA: [PlayerDisplay, PlayerDisplay];
   teamB: [PlayerDisplay, PlayerDisplay];
-  score: string; // "6-4 / 6-3"
+  score: string;
   winner: "a" | "b";
   date: string;
 };
 
 export const ShareMatchCard = forwardRef<View, ShareMatchCardProps>(
   function ShareMatchCard({ teamA, teamB, score, winner, date }, ref) {
-    const winnerColor = colors.accent.base;
-    const loserOpacity = 0.5;
+    const winnerTeam = winner === "a" ? teamA : teamB;
+    const loserTeam = winner === "a" ? teamB : teamA;
 
     return (
       <View
@@ -39,79 +38,153 @@ export const ShareMatchCard = forwardRef<View, ShareMatchCardProps>(
           width: 360,
           height: 640,
           backgroundColor: colors.surface.base,
-          padding: 32,
-          justifyContent: "space-between",
+          overflow: "hidden",
         }}
       >
+        {/* Gradient top bar */}
+        <View
+          style={{
+            height: 4,
+            backgroundColor: colors.accent.base,
+          }}
+        />
+
         {/* Header */}
-        <View style={{ alignItems: "center", gap: 4 }}>
-          <Text style={{ fontSize: 32 }}>🏓</Text>
-          <Text style={{ color: colors.text.primary, fontSize: 20, fontWeight: "800" }}>
+        <View style={{ alignItems: "center", paddingTop: 28, gap: 2 }}>
+          <Text style={{ fontSize: 28 }}>🏓</Text>
+          <Text
+            style={{
+              color: colors.text.primary,
+              fontSize: 22,
+              fontWeight: "900",
+              letterSpacing: 3,
+              textTransform: "uppercase",
+            }}
+          >
             Smash Talk
           </Text>
-          <Text style={{ color: colors.text.muted, fontSize: 12 }}>{date}</Text>
+          <Text style={{ color: colors.text.muted, fontSize: 11, marginTop: 4 }}>
+            {date}
+          </Text>
         </View>
 
-        {/* Match result */}
-        <View style={{ alignItems: "center", gap: 24 }}>
-          {/* Team A */}
-          <View style={{ alignItems: "center", gap: 8, opacity: winner === "a" ? 1 : loserOpacity }}>
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              <InitialsCircle {...teamA[0]} />
-              <InitialsCircle {...teamA[1]} />
-            </View>
-            <Text style={{ color: colors.text.primary, fontSize: 16, fontWeight: "700" }}>
-              {teamA[0].pseudo} + {teamA[1].pseudo}
+        {/* Score section - hero */}
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 20 }}>
+          {/* Winner banner */}
+          <View
+            style={{
+              backgroundColor: colors.accent.muted,
+              paddingHorizontal: 20,
+              paddingVertical: 8,
+              borderRadius: 20,
+            }}
+          >
+            <Text
+              style={{
+                color: colors.accent.light,
+                fontSize: 13,
+                fontWeight: "800",
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
+            >
+              🏆 {winnerTeam[0].pseudo} + {winnerTeam[1].pseudo}
             </Text>
-            {winner === "a" ? (
-              <Text style={{ color: winnerColor, fontSize: 14, fontWeight: "700" }}>VICTOIRE ✓</Text>
-            ) : null}
           </View>
 
-          {/* Score */}
-          <Text style={{ color: colors.text.primary, fontSize: 36, fontWeight: "900", letterSpacing: 2 }}>
+          {/* Score XXL */}
+          <Text
+            style={{
+              color: colors.text.primary,
+              fontSize: 52,
+              fontWeight: "900",
+              letterSpacing: 4,
+              fontVariant: ["tabular-nums"],
+            }}
+          >
             {score}
           </Text>
 
-          {/* Team B */}
-          <View style={{ alignItems: "center", gap: 8, opacity: winner === "b" ? 1 : loserOpacity }}>
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              <InitialsCircle {...teamB[0]} />
-              <InitialsCircle {...teamB[1]} />
+          {/* VS line */}
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16, paddingHorizontal: 32 }}>
+            {/* Winner side */}
+            <View style={{ flex: 1, alignItems: "center", gap: 10 }}>
+              <View style={{ flexDirection: "row", gap: 6 }}>
+                <AvatarCircle {...winnerTeam[0]} size={48} />
+                <AvatarCircle {...winnerTeam[1]} size={48} />
+              </View>
+              <Text style={{ color: colors.text.primary, fontSize: 13, fontWeight: "700", textAlign: "center" }}>
+                {winnerTeam[0].pseudo}{"\n"}{winnerTeam[1].pseudo}
+              </Text>
             </View>
-            <Text style={{ color: colors.text.primary, fontSize: 16, fontWeight: "700" }}>
-              {teamB[0].pseudo} + {teamB[1].pseudo}
-            </Text>
-            {winner === "b" ? (
-              <Text style={{ color: winnerColor, fontSize: 14, fontWeight: "700" }}>VICTOIRE ✓</Text>
-            ) : null}
+
+            {/* VS divider */}
+            <View style={{ alignItems: "center", gap: 4 }}>
+              <View style={{ width: 1, height: 24, backgroundColor: colors.surface.border }} />
+              <Text style={{ color: colors.text.muted, fontSize: 11, fontWeight: "800" }}>VS</Text>
+              <View style={{ width: 1, height: 24, backgroundColor: colors.surface.border }} />
+            </View>
+
+            {/* Loser side */}
+            <View style={{ flex: 1, alignItems: "center", gap: 10, opacity: 0.45 }}>
+              <View style={{ flexDirection: "row", gap: 6 }}>
+                <AvatarCircle {...loserTeam[0]} size={48} />
+                <AvatarCircle {...loserTeam[1]} size={48} />
+              </View>
+              <Text style={{ color: colors.text.primary, fontSize: 13, fontWeight: "700", textAlign: "center" }}>
+                {loserTeam[0].pseudo}{"\n"}{loserTeam[1].pseudo}
+              </Text>
+            </View>
           </View>
         </View>
 
         {/* Footer */}
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ color: colors.text.muted, fontSize: 10 }}>
+        <View style={{ alignItems: "center", paddingBottom: 24, gap: 4 }}>
+          <Text style={{ color: colors.accent.base, fontSize: 11, fontWeight: "700", letterSpacing: 1 }}>
+            CHAQUE MATCH COMPTE
+          </Text>
+          <Text style={{ color: colors.text.muted, fontSize: 9 }}>
             smashtalk.app
           </Text>
         </View>
+
+        {/* Gradient bottom bar */}
+        <View
+          style={{
+            height: 4,
+            backgroundColor: colors.accent.base,
+          }}
+        />
       </View>
     );
   }
 );
 
-function InitialsCircle({ initials, color }: { initials: string; color: string }) {
+function AvatarCircle({
+  initials,
+  color,
+  size = 44,
+}: {
+  initials: string;
+  color: string;
+  size?: number;
+}) {
   return (
     <View
       style={{
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
         backgroundColor: color,
         alignItems: "center",
         justifyContent: "center",
+        borderWidth: 2,
+        borderColor: "rgba(255,255,255,0.15)",
       }}
     >
-      <Text style={{ color: "#FFFFFF", fontSize: 14, fontWeight: "700" }}>{initials}</Text>
+      <Text style={{ color: "#FFFFFF", fontSize: size * 0.3, fontWeight: "800" }}>
+        {initials}
+      </Text>
     </View>
   );
 }

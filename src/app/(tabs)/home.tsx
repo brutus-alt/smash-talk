@@ -6,6 +6,8 @@ import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { LeagueHeader } from "../../components/league-header";
 import { MatchCard } from "../../components/match-card";
 import { RankingRow } from "../../components/ranking-row";
+import { TensionCard } from "../../components/tension-card";
+import { useAuthStore } from "../../stores/auth.store";
 import { useLeagueStore } from "../../stores/league.store";
 import { useLeague } from "../../hooks/use-leagues";
 import { useMatches } from "../../hooks/use-matches";
@@ -22,6 +24,7 @@ import type { ProfileRow } from "../../lib/database.types";
 export default function HomeScreen() {
   const router = useRouter();
   const activeLeagueId = useLeagueStore((s) => s.activeLeagueId);
+  const userId = useAuthStore((s) => s.user?.id) ?? "";
 
   // Hooks Supabase
   const { data: league } = useLeague(activeLeagueId);
@@ -149,6 +152,25 @@ export default function HomeScreen() {
                 );
               })}
             </View>
+          </View>
+        </FadeInUp>
+      ) : null}
+
+      {/* Tension — messages dynamiques */}
+      {rankings && rankings.length >= 2 && members ? (
+        <FadeInUp delay={300}>
+          <View>
+            <SectionHeader title="Dans l'arène" />
+            <TensionCard
+              rankings={rankings}
+              players={new Map(
+                members.map((m) => [
+                  m.user_id,
+                  { userId: m.user_id, pseudo: m.profile.pseudo },
+                ])
+              )}
+              currentUserId={userId}
+            />
           </View>
         </FadeInUp>
       ) : null}
