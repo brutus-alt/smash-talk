@@ -1,6 +1,7 @@
 import { View, ActivityIndicator } from "react-native";
 
 import { Screen, SectionHeader, EmptyState } from "../../components/ui";
+import { FadeInUp } from "../../components/ui/animated-view";
 import { MatchCard } from "../../components/match-card";
 import { useLeagueStore } from "../../stores/league.store";
 import { useMatches } from "../../hooks/use-matches";
@@ -64,21 +65,22 @@ export default function HistoryScreen() {
       <SectionHeader title="La mémoire du groupe" subtitle={`${matches.length} matchs`} />
 
       <View className="gap-3">
-        {matches.map((m) => (
-          <MatchCard
-            key={m.id}
-            teamA={[
-              resolvePlayer(m.team_a_player_1),
-              resolvePlayer(m.team_a_player_2),
-            ]}
-            teamB={[
-              resolvePlayer(m.team_b_player_1),
-              resolvePlayer(m.team_b_player_2),
-            ]}
-            sets={getMatchSets(m)}
-            winner={m.winner === "team_a" ? "a" : "b"}
-            playedAt={m.played_at}
-          />
+        {matches.map((m, index) => (
+          <FadeInUp key={m.id} delay={index * 50}>
+            <MatchCard
+              teamA={[
+                resolvePlayer(m.team_a_player_1),
+                resolvePlayer(m.team_a_player_2),
+              ]}
+              teamB={[
+                resolvePlayer(m.team_b_player_1),
+                resolvePlayer(m.team_b_player_2),
+              ]}
+              sets={getMatchSets(m)}
+              winner={m.winner === "team_a" ? "a" : "b"}
+              playedAt={m.played_at}
+            />
+          </FadeInUp>
         ))}
       </View>
     </Screen>

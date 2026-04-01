@@ -12,6 +12,7 @@ import {
   Button,
   EmptyState,
 } from "../../components/ui";
+import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { PlayerHero } from "../../components/player-hero";
 import { RivalryCard } from "../../components/rivalry-card";
 import { MatchCard } from "../../components/match-card";
@@ -69,69 +70,77 @@ export default function PlayerScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Hero — props résolues */}
-        <PlayerHero
-          pseudo={player.pseudo}
-          initials={player.initials}
-          color={player.color}
-          rank={ranking.rank}
-          matches={ranking.matches}
-          wins={ranking.wins}
-          losses={ranking.losses}
-          winRate={ranking.winRate}
-          streak={ranking.streak}
-          streakType={ranking.streakType}
-        />
+        <ScaleBounce delay={0}>
+          <PlayerHero
+            pseudo={player.pseudo}
+            initials={player.initials}
+            color={player.color}
+            rank={ranking.rank}
+            matches={ranking.matches}
+            wins={ranking.wins}
+            losses={ranking.losses}
+            winRate={ranking.winRate}
+            streak={ranking.streak}
+            streakType={ranking.streakType}
+          />
+        </ScaleBounce>
 
         {/* Stats */}
-        <View>
-          <SectionHeader title="Ses chiffres" />
-          <Card>
-            <StatRow label="Matchs joués" value={ranking.matches} />
-            <Divider />
-            <StatRow label="Victoires" value={ranking.wins} highlight="accent" />
-            <Divider />
-            <StatRow label="Défaites" value={ranking.losses} highlight="danger" />
-            <Divider />
-            <StatRow label="Ratio" value={`${Math.round(ranking.winRate * 100)}%`} />
-          </Card>
-        </View>
+        <FadeInUp delay={150}>
+          <View>
+            <SectionHeader title="Ses chiffres" />
+            <Card>
+              <StatRow label="Matchs joués" value={ranking.matches} />
+              <Divider />
+              <StatRow label="Victoires" value={ranking.wins} highlight="accent" />
+              <Divider />
+              <StatRow label="Défaites" value={ranking.losses} highlight="danger" />
+              <Divider />
+              <StatRow label="Ratio" value={`${Math.round(ranking.winRate * 100)}%`} />
+            </Card>
+          </View>
+        </FadeInUp>
 
         {/* Badges */}
-        <View>
-          <SectionHeader title="Son palmarès" subtitle={`${earnedCount}/12`} />
-          <Card>
-            <View className="flex-row flex-wrap gap-3 justify-center py-1">
-              {BADGES.slice(0, 6).map((badge) => (
-                <BadgeIcon
-                  key={badge.id}
-                  name={badge.name}
-                  icon={badge.icon}
-                  earned={badge.earnedAt !== null}
-                  size="sm"
-                />
-              ))}
-            </View>
-          </Card>
-        </View>
+        <FadeInUp delay={300}>
+          <View>
+            <SectionHeader title="Son palmarès" subtitle={`${earnedCount}/12`} />
+            <Card>
+              <View className="flex-row flex-wrap gap-3 justify-center py-1">
+                {BADGES.slice(0, 6).map((badge) => (
+                  <BadgeIcon
+                    key={badge.id}
+                    name={badge.name}
+                    icon={badge.icon}
+                    earned={badge.earnedAt !== null}
+                    size="sm"
+                  />
+                ))}
+              </View>
+            </Card>
+          </View>
+        </FadeInUp>
 
         {/* Rivalités — props résolues */}
         {playerRivalries.length > 0 ? (
-          <View>
-            <SectionHeader title="Ses rivaux" />
-            <View className="gap-3">
-              {playerRivalries.map((r, i) => (
-                <RivalryCard
-                  key={i}
-                  playerA={getPlayer(r.playerAId)}
-                  playerB={getPlayer(r.playerBId)}
-                  playerAWins={r.playerAWins}
-                  playerBWins={r.playerBWins}
-                  totalMatches={r.totalMatches}
-                  lastMatchDate={r.lastMatchDate}
-                />
-              ))}
+          <FadeInUp delay={450}>
+            <View>
+              <SectionHeader title="Ses rivaux" />
+              <View className="gap-3">
+                {playerRivalries.map((r, i) => (
+                  <RivalryCard
+                    key={i}
+                    playerA={getPlayer(r.playerAId)}
+                    playerB={getPlayer(r.playerBId)}
+                    playerAWins={r.playerAWins}
+                    playerBWins={r.playerBWins}
+                    totalMatches={r.totalMatches}
+                    lastMatchDate={r.lastMatchDate}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
+          </FadeInUp>
         ) : null}
 
         {/* Matchs récents — props résolues */}

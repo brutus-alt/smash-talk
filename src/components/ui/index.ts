@@ -12,6 +12,9 @@ export { Screen } from "./screen";
 export { ModalHeader } from "./modal-header";
 export { Divider } from "./divider";
 
+// Animations
+export { FadeInUp, FadeIn, ScaleBounce } from "./animated-view";
+
 // Actions
 export { Button } from "./button";
 export { FAB } from "./fab";

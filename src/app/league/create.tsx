@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 
 import { ModalHeader, Button, Input, Card, Pill } from "../../components/ui";
+import { FadeInUp } from "../../components/ui/animated-view";
 import { useAuthStore } from "../../stores/auth.store";
 import { useLeagueStore } from "../../stores/league.store";
 import { useCreateLeague } from "../../hooks/use-leagues";
@@ -48,18 +49,21 @@ export default function CreateLeagueScreen() {
       <ModalHeader title="Fonder ta ligue" onClose={() => router.back()} />
 
       <ScrollView className="flex-1 px-6" contentContainerClassName="gap-6 pb-8">
-        <Input
-          label="Le nom de guerre"
-          placeholder="Ex : La Ligue du Jeudi, Les Inarrêtables..."
-          value={name}
-          onChangeText={setName}
-          maxLength={30}
-          showCount
-          autoFocus
-        />
+        <FadeInUp delay={0}>
+          <Input
+            label="Le nom de guerre"
+            placeholder="Ex : La Ligue du Jeudi, Les Inarrêtables..."
+            value={name}
+            onChangeText={setName}
+            maxLength={30}
+            showCount
+            autoFocus
+          />
+        </FadeInUp>
 
-        <View className="gap-2">
-          <Text className="text-text-secondary text-sm font-medium">Emblème</Text>
+        <FadeInUp delay={100}>
+          <View className="gap-2">
+            <Text className="text-text-secondary text-sm font-medium">Emblème</Text>
           <View className="flex-row flex-wrap gap-2">
             {EMOJI_OPTIONS.map((e) => (
               <Pressable
@@ -75,18 +79,21 @@ export default function CreateLeagueScreen() {
             ))}
           </View>
         </View>
+        </FadeInUp>
 
         {canCreate ? (
-          <Card variant="elevated">
-            <Text className="text-text-muted text-xs mb-3">Ça donne ça 👇</Text>
-            <View className="flex-row items-center gap-3">
-              <Text className="text-3xl">{emoji}</Text>
-              <View>
-                <Text className="text-text text-lg font-bold">{name}</Text>
-                <Text className="text-text-muted text-sm">1 joueur · 0 matchs</Text>
+          <FadeInUp delay={200}>
+            <Card variant="elevated">
+              <Text className="text-text-muted text-xs mb-3">Ça donne ça 👇</Text>
+              <View className="flex-row items-center gap-3">
+                <Text className="text-3xl">{emoji}</Text>
+                <View>
+                  <Text className="text-text text-lg font-bold">{name}</Text>
+                  <Text className="text-text-muted text-sm">1 joueur · 0 matchs</Text>
+                </View>
               </View>
-            </View>
-          </Card>
+            </Card>
+          </FadeInUp>
         ) : null}
       </ScrollView>
 

@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 
 import { Screen, Button, Input } from "../../components/ui";
+import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { useAuthStore } from "../../stores/auth.store";
 import { supabase } from "../../services/supabase";
 
@@ -118,37 +119,43 @@ export default function LoginScreen() {
   return (
     <Screen className="justify-center gap-6 px-6">
       {/* Branding */}
-      <View className="items-center gap-3 mb-12">
-        <Text className="text-5xl">🏓</Text>
-        <Text className="text-text text-4xl font-bold tracking-tight">
-          Smash Talk
-        </Text>
-        <Text className="text-text-secondary text-base text-center leading-6">
-          Ton groupe. Tes rivaux.{"\n"}Tes légendes.
-        </Text>
-      </View>
+      <ScaleBounce delay={0}>
+        <View className="items-center gap-3 mb-12">
+          <Text className="text-5xl">🏓</Text>
+          <Text className="text-text text-4xl font-bold tracking-tight">
+            Smash Talk
+          </Text>
+          <Text className="text-text-secondary text-base text-center leading-6">
+            Ton groupe. Tes rivaux.{"\n"}Tes légendes.
+          </Text>
+        </View>
+      </ScaleBounce>
 
       {/* Email input */}
-      <Input
-        label="Ton email"
-        placeholder="nico@exemple.com"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoComplete="email"
-      />
+      <FadeInUp delay={200}>
+        <Input
+          label="Ton email"
+          placeholder="nico@exemple.com"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="email"
+        />
+      </FadeInUp>
 
       {/* Magic Link button */}
-      <Button
-        title="Entrer dans l'arène"
-        size="lg"
-        fullWidth
-        disabled={!isValidEmail}
-        isLoading={isLoading}
-        onPress={handleMagicLink}
-      />
+      <FadeInUp delay={350}>
+        <Button
+          title="Entrer dans l'arène"
+          size="lg"
+          fullWidth
+          disabled={!isValidEmail}
+          isLoading={isLoading}
+          onPress={handleMagicLink}
+        />
+      </FadeInUp>
 
       {/* Futur : Apple / Google */}
       <View className="items-center mt-4">

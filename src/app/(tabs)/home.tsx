@@ -2,6 +2,7 @@ import { View, Text, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 
 import { Screen, SectionHeader, EmptyState } from "../../components/ui";
+import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { LeagueHeader } from "../../components/league-header";
 import { MatchCard } from "../../components/match-card";
 import { RankingRow } from "../../components/ranking-row";
@@ -76,74 +77,80 @@ export default function HomeScreen() {
   return (
     <Screen mode="scroll">
       {/* League header */}
-      <LeagueHeader
-        name={league?.name ?? "Ma Ligue"}
-        emoji={league?.emoji ?? "⚡"}
-        memberCount={members?.length ?? 0}
-        matchesThisWeek={matches?.filter((m) => {
-          const d = new Date(m.played_at);
-          const now = new Date();
-          const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
-          return diff <= 7;
-        }).length ?? 0}
-      />
+      <FadeInUp delay={0}>
+        <LeagueHeader
+          name={league?.name ?? "Ma Ligue"}
+          emoji={league?.emoji ?? "⚡"}
+          memberCount={members?.length ?? 0}
+          matchesThisWeek={matches?.filter((m) => {
+            const d = new Date(m.played_at);
+            const now = new Date();
+            const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
+            return diff <= 7;
+          }).length ?? 0}
+        />
+      </FadeInUp>
 
       {/* Dernier match */}
-      {lastMatch ? (
-        <View>
-          <SectionHeader title="Dernier combat" />
-          <MatchCard
-            teamA={[
-              resolvePlayer(lastMatch.team_a_player_1),
-              resolvePlayer(lastMatch.team_a_player_2),
-            ]}
-            teamB={[
-              resolvePlayer(lastMatch.team_b_player_1),
-              resolvePlayer(lastMatch.team_b_player_2),
-            ]}
-            sets={getMatchSets(lastMatch)}
-            winner={lastMatch.winner === "team_a" ? "a" : "b"}
-            playedAt={lastMatch.played_at}
-          />
-        </View>
-      ) : (
-        <View>
-          <SectionHeader title="Dernier combat" />
-          <EmptyState
-            emoji="🎾"
-            title="Le terrain t'attend"
-            description="Premier match, première légende. Tape sur + et montre ce que tu vaux."
-          />
-        </View>
-      )}
+      <FadeInUp delay={100}>
+        {lastMatch ? (
+          <View>
+            <SectionHeader title="Dernier combat" />
+            <MatchCard
+              teamA={[
+                resolvePlayer(lastMatch.team_a_player_1),
+                resolvePlayer(lastMatch.team_a_player_2),
+              ]}
+              teamB={[
+                resolvePlayer(lastMatch.team_b_player_1),
+                resolvePlayer(lastMatch.team_b_player_2),
+              ]}
+              sets={getMatchSets(lastMatch)}
+              winner={lastMatch.winner === "team_a" ? "a" : "b"}
+              playedAt={lastMatch.played_at}
+            />
+          </View>
+        ) : (
+          <View>
+            <SectionHeader title="Dernier combat" />
+            <EmptyState
+              emoji="🎾"
+              title="Le terrain t'attend"
+              description="Premier match, première légende. Tape sur + et montre ce que tu vaux."
+            />
+          </View>
+        )}
+      </FadeInUp>
 
       {/* Top 3 classement */}
       {top3.length > 0 ? (
-        <View>
-          <SectionHeader title="Qui domine ?" actionLabel="Voir tout" onAction={() => {}} />
-          <View className="bg-surface-card rounded-xl overflow-hidden">
-            {top3.map((r) => {
-              const p = resolvePlayer(r.userId);
-              return (
-                <RankingRow
-                  key={r.userId}
-                  rank={r.rank}
-                  pseudo={p.pseudo}
-                  initials={p.initials}
-                  color={p.color}
-                  matches={r.totalMatches}
-                  wins={r.wins}
-                  losses={r.losses}
-                  winRate={r.winRate}
-                  streak={r.currentStreak}
-                  streakType={r.currentStreakType}
-                  movement={0}
-                  onPress={() => router.push(`/player/${r.userId}`)}
-                />
-              );
-            })}
+        <FadeInUp delay={200}>
+          <View>
+            <SectionHeader title="Qui domine ?" actionLabel="Voir tout" onAction={() => {}} />
+            <View className="bg-surface-card rounded-xl overflow-hidden">
+              {top3.map((r) => {
+                const p = resolvePlayer(r.userId);
+                return (
+                  <RankingRow
+                    key={r.userId}
+                    rank={r.rank}
+                    pseudo={p.pseudo}
+                    initials={p.initials}
+                    color={p.color}
+                    matches={r.totalMatches}
+                    wins={r.wins}
+                    losses={r.losses}
+                    winRate={r.winRate}
+                    streak={r.currentStreak}
+                    streakType={r.currentStreakType}
+                    movement={0}
+                    onPress={() => router.push(`/player/${r.userId}`)}
+                  />
+                );
+              })}
+            </View>
           </View>
-        </View>
+        </FadeInUp>
       ) : null}
     </Screen>
   );

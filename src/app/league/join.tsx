@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ModalHeader, Button, Input, Card } from "../../components/ui";
+import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { useAuthStore } from "../../stores/auth.store";
 import { useLeagueStore } from "../../stores/league.store";
 import { useJoinLeague, useLookupLeague } from "../../hooks/use-leagues";
@@ -96,15 +97,17 @@ export default function JoinLeagueScreen() {
 
         {/* Aperçu de la ligue trouvée */}
         {foundLeague ? (
-          <Card variant="elevated">
-            <Text className="text-text-muted text-xs mb-2">Trouvée 🎯</Text>
-            <View className="flex-row items-center gap-3">
-              <Text className="text-3xl">{foundLeague.emoji}</Text>
-              <View>
-                <Text className="text-text text-lg font-bold">{foundLeague.name}</Text>
+          <ScaleBounce delay={0}>
+            <Card variant="elevated">
+              <Text className="text-text-muted text-xs mb-2">Trouvée 🎯</Text>
+              <View className="flex-row items-center gap-3">
+                <Text className="text-3xl">{foundLeague.emoji}</Text>
+                <View>
+                  <Text className="text-text text-lg font-bold">{foundLeague.name}</Text>
+                </View>
               </View>
-            </View>
-          </Card>
+            </Card>
+          </ScaleBounce>
         ) : null}
 
         <View className="mt-auto mb-8">

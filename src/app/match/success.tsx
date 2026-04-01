@@ -3,9 +3,9 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "../../components/ui";
+import { ScaleBounce, FadeInUp } from "../../components/ui/animated-view";
 import { ShareMatchCard } from "../../components/share-match-card";
 import { useShare } from "../../hooks/use-share";
-import { formatScore } from "../../lib/utils";
 
 /**
  * Écran de succès post-match.
@@ -60,13 +60,19 @@ export default function MatchSuccessScreen() {
     <SafeAreaView className="flex-1 bg-surface">
       {/* Celebration */}
       <View className="flex-1 items-center justify-center gap-6 px-6">
-        <Text className="text-5xl">🎉</Text>
-        <Text className="text-text text-2xl font-bold text-center">
-          Ça, c'est fait.
-        </Text>
-        <Text className="text-text-secondary text-base text-center">
-          {winnerNames} pose la domination. {score}
-        </Text>
+        <ScaleBounce delay={0}>
+          <Text className="text-5xl">🎉</Text>
+        </ScaleBounce>
+        <FadeInUp delay={200}>
+          <Text className="text-text text-2xl font-bold text-center">
+            Ça, c'est fait.
+          </Text>
+        </FadeInUp>
+        <FadeInUp delay={350}>
+          <Text className="text-text-secondary text-base text-center">
+            {winnerNames} pose la domination. {score}
+          </Text>
+        </FadeInUp>
       </View>
 
       {/* Share card - rendu hors écran pour capture */}

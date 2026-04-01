@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 
 import { Screen, SegmentedControl, SectionHeader, EmptyState } from "../../components/ui";
+import { FadeInUp } from "../../components/ui/animated-view";
 import { RankingRow } from "../../components/ranking-row";
 import { useLeagueStore } from "../../stores/league.store";
 import { useRankings } from "../../hooks/use-rankings";
@@ -58,10 +59,11 @@ export default function RankingScreen() {
           </View>
         ) : rankings && rankings.length > 0 ? (
           <View className="bg-surface-card rounded-xl overflow-hidden">
-            {rankings.map((r) => {
+            {rankings.map((r, index) => {
               const p = resolvePlayer(r.userId);
               return (
-                <RankingRow
+                <FadeInUp key={r.userId} delay={index * 60}>
+                  <RankingRow
                   key={r.userId}
                   rank={r.rank}
                   pseudo={p.pseudo}
@@ -76,6 +78,7 @@ export default function RankingScreen() {
                   movement={0}
                   onPress={() => router.push(`/player/${r.userId}`)}
                 />
+                </FadeInUp>
               );
             })}
           </View>

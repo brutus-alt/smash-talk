@@ -9,6 +9,7 @@ import {
   StatRow,
   Button,
 } from "../../components/ui";
+import { FadeInUp } from "../../components/ui/animated-view";
 import { PlayerHero } from "../../components/player-hero";
 import { useAuthStore } from "../../stores/auth.store";
 import { useLeagueStore } from "../../stores/league.store";
@@ -37,43 +38,47 @@ export default function ProfileScreen() {
   return (
     <Screen mode="scroll">
       {/* Hero */}
-      <PlayerHero
-        pseudo={profile?.pseudo ?? "Joueur"}
-        initials={profile?.initials ?? "??"}
-        color={profile?.color ?? "#3B82F6"}
-        rank={myRanking?.rank ?? 0}
-        matches={stats?.totalMatches ?? 0}
-        wins={stats?.wins ?? 0}
-        losses={stats?.losses ?? 0}
-        winRate={stats?.winRate ?? 0}
-        streak={stats?.currentStreak ?? 0}
-        streakType={stats?.currentStreakType ?? "none"}
-      />
+      <FadeInUp delay={0}>
+        <PlayerHero
+          pseudo={profile?.pseudo ?? "Joueur"}
+          initials={profile?.initials ?? "??"}
+          color={profile?.color ?? "#3B82F6"}
+          rank={myRanking?.rank ?? 0}
+          matches={stats?.totalMatches ?? 0}
+          wins={stats?.wins ?? 0}
+          losses={stats?.losses ?? 0}
+          winRate={stats?.winRate ?? 0}
+          streak={stats?.currentStreak ?? 0}
+          streakType={stats?.currentStreakType ?? "none"}
+        />
+      </FadeInUp>
 
       {/* Stats détaillées */}
       {stats ? (
-        <View>
-          <SectionHeader title="Tes chiffres" />
-          <Card>
-            <StatRow label="Matchs joués" value={stats.totalMatches} />
-            <Divider />
-            <StatRow label="Victoires 💪" value={stats.wins} highlight="accent" />
-            <Divider />
-            <StatRow label="Défaites 😤" value={stats.losses} highlight="danger" />
-            <Divider />
-            <StatRow label="Ratio de boss" value={`${Math.round(stats.winRate * 100)}%`} />
-            <Divider />
-            <StatRow
-              label="Meilleure série 🔥"
-              value={`${stats.bestWinStreak} V`}
-              highlight="accent"
-            />
-            <Divider />
-            <StatRow label="Sets gagnés" value={stats.totalSetsWon} />
-            <Divider />
-            <StatRow label="Sets lâchés" value={stats.totalSetsLost} highlight="danger" />
-          </Card>
-        </View>
+        <FadeInUp delay={100}>
+          <View>
+            <SectionHeader title="Tes chiffres" />
+            <Card>
+              <StatRow label="Matchs joués" value={stats.totalMatches} />
+              <Divider />
+              <StatRow label="Victoires 💪" value={stats.wins} highlight="accent" />
+              <Divider />
+              <StatRow label="Défaites 😤" value={stats.losses} highlight="danger" />
+              <Divider />
+              <StatRow label="Ratio de boss" value={`${Math.round(stats.winRate * 100)}%`} />
+              <Divider />
+              <StatRow
+                label="Meilleure série 🔥"
+                value={`${stats.bestWinStreak} V`}
+                highlight="accent"
+              />
+              <Divider />
+              <StatRow label="Sets gagnés" value={stats.totalSetsWon} />
+              <Divider />
+              <StatRow label="Sets lâchés" value={stats.totalSetsLost} highlight="danger" />
+            </Card>
+          </View>
+        </FadeInUp>
       ) : null}
 
       {/* Badges */}

@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 
 import { Screen, Button, Input, Avatar } from "../../components/ui";
+import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { useAuthStore } from "../../stores/auth.store";
 import { profilesService } from "../../services/profiles.service";
 import { getInitials, getRandomPlayerColor } from "../../lib/utils";
@@ -55,34 +56,40 @@ export default function OnboardingScreen() {
 
   return (
     <Screen className="px-6 pt-12">
-      <View className="gap-2 mb-8">
-        <Text className="text-text text-2xl font-bold">
-          Qui entre dans l'arène ?
-        </Text>
-        <Text className="text-text-secondary text-base">
-          Choisis le blaze que tes rivaux vont redouter.
-        </Text>
-      </View>
+      <FadeInUp delay={0}>
+        <View className="gap-2 mb-8">
+          <Text className="text-text text-2xl font-bold">
+            Qui entre dans l'arène ?
+          </Text>
+          <Text className="text-text-secondary text-base">
+            Choisis le blaze que tes rivaux vont redouter.
+          </Text>
+        </View>
+      </FadeInUp>
 
       {/* Avatar preview */}
-      <View className="items-center gap-2 mb-8">
-        <Avatar initials={initials} color={color} size="xl" />
-        <Text className="text-text-muted text-sm">
-          Ta tête dans le classement
-        </Text>
-      </View>
+      <ScaleBounce delay={200}>
+        <View className="items-center gap-2 mb-8">
+          <Avatar initials={initials} color={color} size="xl" />
+          <Text className="text-text-muted text-sm">
+            Ta tête dans le classement
+          </Text>
+        </View>
+      </ScaleBounce>
 
       {/* Pseudo input */}
-      <Input
-        label="Pseudo"
-        placeholder="Ex : Nico, Thomas, MarcLeRoi..."
-        value={pseudo}
-        onChangeText={setPseudo}
-        maxLength={20}
-        showCount
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
+      <FadeInUp delay={350}>
+        <Input
+          label="Pseudo"
+          placeholder="Ex : Nico, Thomas, MarcLeRoi..."
+          value={pseudo}
+          onChangeText={setPseudo}
+          maxLength={20}
+          showCount
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </FadeInUp>
 
       {/* CTA */}
       <View className="mt-auto mb-8">
