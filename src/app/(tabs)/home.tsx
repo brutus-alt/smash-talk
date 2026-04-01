@@ -1,15 +1,18 @@
-import { View, Text, ActivityIndicator } from "react-native";
+import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState, useCallback } from "react";
 
-import { Screen, SectionHeader, EmptyState } from "../../components/ui";
+import { Screen, SectionHeader, EmptyState, SkeletonMatchCard, SkeletonRankingRow } from "../../components/ui";
 import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { LeagueHeader } from "../../components/league-header";
+import { LeagueSwitcher } from "../../components/league-switcher";
 import { MatchCard } from "../../components/match-card";
 import { RankingRow } from "../../components/ranking-row";
 import { TensionCard } from "../../components/tension-card";
 import { useAuthStore } from "../../stores/auth.store";
 import { useLeagueStore } from "../../stores/league.store";
-import { useLeague } from "../../hooks/use-leagues";
+import { useLeague, useMyLeagues } from "../../hooks/use-leagues";
 import { useMatches } from "../../hooks/use-matches";
 import { useRankings } from "../../hooks/use-rankings";
 import { useLeagueMembers } from "../../hooks/use-league-members";
@@ -24,13 +27,28 @@ import type { ProfileRow } from "../../lib/database.types";
 export default function HomeScreen() {
   const router = useRouter();
   const activeLeagueId = useLeagueStore((s) => s.activeLeagueId);
+  const setActiveLeague = useLeagueStore((s) => s.setActiveLeague);
   const userId = useAuthStore((s) => s.user?.id) ?? "";
 
   // Hooks Supabase
+  const qc = useQueryClient();
   const { data: league } = useLeague(activeLeagueId);
+  const { data: myLeagues } = useMyLeagues();
   const { data: matches, isLoading: matchesLoading } = useMatches(activeLeagueId);
   const { data: rankings } = useRankings(activeLeagueId);
   const { data: members } = useLeagueMembers(activeLeagueId);
+
+  // League switcher
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const hasMultipleLeagues = (myLeagues?.length ?? 0) > 1;
+
+  // Pull-to-refresh
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await qc.invalidateQueries();
+    setRefreshing(false);
+  }, [qc]);
 
   // Helper : résoudre un profil depuis les membres
   const getProfile = (userId: string): ProfileRow | undefined =>
@@ -62,12 +80,17 @@ export default function HomeScreen() {
     );
   }
 
-  // Loading
+  // Loading — skeleton
   if (matchesLoading) {
     return (
-      <Screen>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#22C55E" size="large" />
+      <Screen mode="scroll">
+        <View className="gap-4">
+          <SkeletonMatchCard />
+          <View className="bg-surface-card rounded-xl overflow-hidden">
+            <SkeletonRankingRow />
+            <SkeletonRankingRow />
+            <SkeletonRankingRow />
+          </View>
         </View>
       </Screen>
     );
@@ -78,7 +101,18 @@ export default function HomeScreen() {
   const hasData = matches && matches.length > 0;
 
   return (
-    <Screen mode="scroll">
+    <Screen mode="scroll" onRefresh={onRefresh} refreshing={refreshing}>
+      {/* League switcher modal */}
+      <LeagueSwitcher
+        visible={switcherOpen}
+        leagues={myLeagues ?? []}
+        activeLeagueId={activeLeagueId ?? ""}
+        onSelect={setActiveLeague}
+        onClose={() => setSwitcherOpen(false)}
+        onCreateNew={() => router.push("/league/create")}
+        onJoin={() => router.push("/league/join")}
+      />
+
       {/* League header */}
       <FadeInUp delay={0}>
         <LeagueHeader
@@ -91,6 +125,7 @@ export default function HomeScreen() {
             const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
             return diff <= 7;
           }).length ?? 0}
+          onSwitch={hasMultipleLeagues ? () => setSwitcherOpen(true) : undefined}
         />
       </FadeInUp>
 

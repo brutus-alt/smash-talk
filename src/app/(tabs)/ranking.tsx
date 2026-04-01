@@ -1,8 +1,9 @@
-import { View, ActivityIndicator } from "react-native";
+import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { Screen, SegmentedControl, SectionHeader, EmptyState } from "../../components/ui";
+import { Screen, SegmentedControl, SectionHeader, EmptyState, SkeletonRankingRow } from "../../components/ui";
 import { FadeInUp } from "../../components/ui/animated-view";
 import { RankingRow } from "../../components/ranking-row";
 import { useLeagueStore } from "../../stores/league.store";
@@ -19,12 +20,20 @@ const SEGMENTS = [
 
 export default function RankingScreen() {
   const router = useRouter();
+  const qc = useQueryClient();
   const activeLeagueId = useLeagueStore((s) => s.activeLeagueId);
   const [view, setView] = useState<RankingView>("individual");
 
   const { data: league } = useLeague(activeLeagueId);
   const { data: rankings, isLoading } = useRankings(activeLeagueId);
   const { data: members } = useLeagueMembers(activeLeagueId);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await qc.invalidateQueries();
+    setRefreshing(false);
+  }, [qc]);
 
   const resolvePlayer = (userId: string) => {
     const p = members?.find((m) => m.user_id === userId)?.profile;
@@ -48,14 +57,18 @@ export default function RankingScreen() {
   }
 
   return (
-    <Screen mode="scroll">
+    <Screen mode="scroll" onRefresh={onRefresh} refreshing={refreshing}>
       <SectionHeader title="Le classement" subtitle={league?.name ?? ""} />
       <SegmentedControl segments={SEGMENTS} value={view} onChange={setView} />
 
       {view === "individual" ? (
         isLoading ? (
-          <View className="py-16 items-center">
-            <ActivityIndicator color="#22C55E" />
+          <View className="bg-surface-card rounded-xl overflow-hidden">
+            <SkeletonRankingRow />
+            <SkeletonRankingRow />
+            <SkeletonRankingRow />
+            <SkeletonRankingRow />
+            <SkeletonRankingRow />
           </View>
         ) : rankings && rankings.length > 0 ? (
           <View className="bg-surface-card rounded-xl overflow-hidden">

@@ -1,6 +1,8 @@
-import { View, ActivityIndicator } from "react-native";
+import { View } from "react-native";
+import { useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { Screen, SectionHeader, EmptyState } from "../../components/ui";
+import { Screen, SectionHeader, EmptyState, SkeletonMatchCard } from "../../components/ui";
 import { FadeInUp } from "../../components/ui/animated-view";
 import { MatchCard } from "../../components/match-card";
 import { useLeagueStore } from "../../stores/league.store";
@@ -13,9 +15,17 @@ import { getMatchSets } from "../../domain/match-utils";
  * Liste chronologique de tous les matchs depuis Supabase.
  */
 export default function HistoryScreen() {
+  const qc = useQueryClient();
   const activeLeagueId = useLeagueStore((s) => s.activeLeagueId);
   const { data: matches, isLoading } = useMatches(activeLeagueId);
   const { data: members } = useLeagueMembers(activeLeagueId);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await qc.invalidateQueries();
+    setRefreshing(false);
+  }, [qc]);
 
   const resolvePlayer = (userId: string) => {
     const p = members?.find((m) => m.user_id === userId)?.profile;
@@ -40,9 +50,11 @@ export default function HistoryScreen() {
 
   if (isLoading) {
     return (
-      <Screen>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#22C55E" size="large" />
+      <Screen mode="scroll">
+        <View className="gap-3">
+          <SkeletonMatchCard />
+          <SkeletonMatchCard />
+          <SkeletonMatchCard />
         </View>
       </Screen>
     );
@@ -61,7 +73,7 @@ export default function HistoryScreen() {
   }
 
   return (
-    <Screen mode="scroll">
+    <Screen mode="scroll" onRefresh={onRefresh} refreshing={refreshing}>
       <SectionHeader title="La mémoire du groupe" subtitle={`${matches.length} matchs`} />
 
       <View className="gap-3">

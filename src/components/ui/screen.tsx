@@ -1,26 +1,27 @@
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { ReactNode } from "react";
+import { colors } from "../../lib/theme";
 
 /**
  * Screen — wrapper d'écran principal.
  *
- * Remplace le pattern répétitif SafeAreaView + bg-surface + padding
- * utilisé dans chaque écran.
- *
  * Modes :
- * - fixed   → pas de scroll, contenu en flex. Pour les écrans courts (login, empty states).
- * - scroll  → ScrollView intégré. Pour les écrans avec contenu dynamique.
+ * - fixed   → pas de scroll. Pour login, empty states.
+ * - scroll  → ScrollView avec pull-to-refresh optionnel.
+ *
+ * Pull-to-refresh : passer onRefresh + refreshing pour l'activer.
  */
 
 type ScreenProps = {
   children: ReactNode;
-  /** "scroll" ajoute un ScrollView interne. "fixed" est un flex container. */
   mode?: "fixed" | "scroll";
-  /** Padding horizontal custom (défaut : px-4) */
   padded?: boolean;
-  /** Classe supplémentaire sur le conteneur interne */
   className?: string;
+  /** Callback pull-to-refresh (scroll mode uniquement) */
+  onRefresh?: () => void;
+  /** État du refresh en cours */
+  refreshing?: boolean;
 };
 
 export function Screen({
@@ -28,6 +29,8 @@ export function Screen({
   mode = "fixed",
   padded = true,
   className = "",
+  onRefresh,
+  refreshing = false,
 }: ScreenProps) {
   if (mode === "scroll") {
     return (
@@ -41,6 +44,17 @@ export function Screen({
           `}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={colors.accent.base}
+                colors={[colors.accent.base]}
+                progressBackgroundColor={colors.surface.card}
+              />
+            ) : undefined
+          }
         >
           {children}
         </ScrollView>

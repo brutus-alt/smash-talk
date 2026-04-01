@@ -32,3 +32,6 @@ export { BadgeIcon } from "./badge-icon";
 export { StatRow } from "./stat-row";
 export { SectionHeader } from "./section-header";
 export { EmptyState } from "./empty-state";
+
+// Loading
+export { Skeleton, SkeletonRankingRow, SkeletonMatchCard } from "./skeleton";
