@@ -97,7 +97,7 @@ export default function AddMatchScreen() {
     }
   };
 
-  const stepLabels = ["Équipes", "Score", "Confirmation"];
+  const stepLabels = ["Les combattants", "Le score", "On valide ?"];
   const players = members ?? [];
 
   return (
@@ -123,7 +123,7 @@ export default function AddMatchScreen() {
       {step === 0 ? (
         <View className="flex-1 px-6 gap-4">
           <Text className="text-text-secondary text-sm">
-            Sélectionne 4 joueurs. Les 2 premiers = Équipe A, les 2 suivants = Équipe B.
+            Qui s'affronte ? Tape sur 4 joueurs. Les 2 premiers ensemble, les 2 suivants en face.
           </Text>
 
           <View className="flex-row flex-wrap gap-3 justify-center">
@@ -214,7 +214,7 @@ export default function AddMatchScreen() {
       {step === 2 ? (
         <View className="flex-1 px-6 gap-6">
           <Card variant="elevated">
-            <Text className="text-text-muted text-xs text-center mb-3">Récapitulatif</Text>
+            <Text className="text-text-muted text-xs text-center mb-3">Récap du combat</Text>
             <View className="flex-row justify-around mb-4">
               <View className="items-center gap-1">
                 <Text className="text-text text-sm font-semibold">
@@ -243,7 +243,7 @@ export default function AddMatchScreen() {
 
           <View className="mt-auto mb-6 gap-3">
             <Button
-              title="Valider le match ✓"
+              title="C'est validé 💥"
               size="lg"
               fullWidth
               isLoading={addMatch.isPending}

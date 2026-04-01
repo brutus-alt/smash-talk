@@ -62,10 +62,10 @@ export default function MatchSuccessScreen() {
       <View className="flex-1 items-center justify-center gap-6 px-6">
         <Text className="text-5xl">🎉</Text>
         <Text className="text-text text-2xl font-bold text-center">
-          Match enregistré !
+          Ça, c'est fait.
         </Text>
         <Text className="text-text-secondary text-base text-center">
-          {winnerNames} remporte le match {score}
+          {winnerNames} pose la domination. {score}
         </Text>
       </View>
 
@@ -84,7 +84,7 @@ export default function MatchSuccessScreen() {
       {/* Actions */}
       <View className="px-6 mb-8 gap-3">
         <Button
-          title="Partager le résultat 📤"
+          title="Envoyer aux potes 📤"
           size="lg"
           fullWidth
           isLoading={isCapturing}

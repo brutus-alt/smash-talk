@@ -60,15 +60,15 @@ export default function JoinLeagueScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <ModalHeader title="Rejoindre une ligue" onClose={() => router.back()} />
+      <ModalHeader title="Rejoindre le combat" onClose={() => router.back()} />
 
       <View className="flex-1 px-6 gap-6 pt-4">
         <Text className="text-text-secondary text-base">
-          Entre le code d'invitation que ton pote t'a envoyé.
+          Ton pote t'a filé un code ? Colle-le ici et entre dans l'arène.
         </Text>
 
         <Input
-          label="Code d'invitation"
+          label="Code secret"
           placeholder="Ex : AB3K7YXZ"
           value={code}
           onChangeText={(text) => {
@@ -85,7 +85,7 @@ export default function JoinLeagueScreen() {
         {/* Bouton rechercher si pas encore trouvé */}
         {isCodeComplete && !foundLeague ? (
           <Button
-            title="Rechercher"
+            title="Trouver la ligue"
             variant="secondary"
             size="md"
             fullWidth
@@ -97,7 +97,7 @@ export default function JoinLeagueScreen() {
         {/* Aperçu de la ligue trouvée */}
         {foundLeague ? (
           <Card variant="elevated">
-            <Text className="text-text-muted text-xs mb-2">Ligue trouvée</Text>
+            <Text className="text-text-muted text-xs mb-2">Trouvée 🎯</Text>
             <View className="flex-row items-center gap-3">
               <Text className="text-3xl">{foundLeague.emoji}</Text>
               <View>
@@ -109,7 +109,7 @@ export default function JoinLeagueScreen() {
 
         <View className="mt-auto mb-8">
           <Button
-            title="Rejoindre"
+            title="Entrer dans la ligue 🔥"
             size="lg"
             fullWidth
             disabled={!foundLeague}

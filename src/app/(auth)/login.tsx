@@ -124,7 +124,7 @@ export default function LoginScreen() {
           Smash Talk
         </Text>
         <Text className="text-text-secondary text-base text-center leading-6">
-          Chaque match compte.{"\n"}Chaque rivalité vit.
+          Ton groupe. Tes rivaux.{"\n"}Tes légendes.
         </Text>
       </View>
 
@@ -142,7 +142,7 @@ export default function LoginScreen() {
 
       {/* Magic Link button */}
       <Button
-        title="Recevoir un lien de connexion"
+        title="Entrer dans l'arène"
         size="lg"
         fullWidth
         disabled={!isValidEmail}

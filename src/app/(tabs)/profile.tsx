@@ -53,25 +53,25 @@ export default function ProfileScreen() {
       {/* Stats détaillées */}
       {stats ? (
         <View>
-          <SectionHeader title="Statistiques détaillées" />
+          <SectionHeader title="Tes chiffres" />
           <Card>
             <StatRow label="Matchs joués" value={stats.totalMatches} />
             <Divider />
-            <StatRow label="Victoires" value={stats.wins} highlight="accent" />
+            <StatRow label="Victoires 💪" value={stats.wins} highlight="accent" />
             <Divider />
-            <StatRow label="Défaites" value={stats.losses} highlight="danger" />
+            <StatRow label="Défaites 😤" value={stats.losses} highlight="danger" />
             <Divider />
-            <StatRow label="Ratio" value={`${Math.round(stats.winRate * 100)}%`} />
+            <StatRow label="Ratio de boss" value={`${Math.round(stats.winRate * 100)}%`} />
             <Divider />
             <StatRow
-              label="Meilleure série"
+              label="Meilleure série 🔥"
               value={`${stats.bestWinStreak} V`}
               highlight="accent"
             />
             <Divider />
             <StatRow label="Sets gagnés" value={stats.totalSetsWon} />
             <Divider />
-            <StatRow label="Sets perdus" value={stats.totalSetsLost} highlight="danger" />
+            <StatRow label="Sets lâchés" value={stats.totalSetsLost} highlight="danger" />
           </Card>
         </View>
       ) : null}
@@ -79,7 +79,7 @@ export default function ProfileScreen() {
       {/* Badges */}
       {badges ? (
         <View>
-          <SectionHeader title="Badges" subtitle={`${earnedCount}/${badges.length}`} />
+          <SectionHeader title="Palmarès" subtitle={`${earnedCount}/${badges.length}`} />
           <Card>
             <View className="flex-row flex-wrap gap-3 justify-center py-1">
               {badges.map((badge) => (
@@ -99,7 +99,7 @@ export default function ProfileScreen() {
       {/* Déconnexion */}
       <View className="mt-4 mb-4">
         <Button
-          title="Se déconnecter"
+          title="Quitter l'arène"
           variant="ghost"
           size="md"
           fullWidth

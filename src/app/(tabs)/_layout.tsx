@@ -54,7 +54,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="home"
           options={{
-            title: "Home",
+            title: "Arène",
             tabBarIcon: ({ focused }) => (
               <TabIcon name={focused ? "home" : "home-outline"} focused={focused} />
             ),
@@ -63,7 +63,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="ranking"
           options={{
-            title: "Classement",
+            title: "Ranking",
             tabBarIcon: ({ focused }) => (
               <TabIcon
                 name={focused ? "podium" : "podium-outline"}
@@ -75,7 +75,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="history"
           options={{
-            title: "Historique",
+            title: "Matchs",
             tabBarIcon: ({ focused }) => (
               <TabIcon name={focused ? "time" : "time-outline"} focused={focused} />
             ),

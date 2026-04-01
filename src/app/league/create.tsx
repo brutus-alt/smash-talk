@@ -45,12 +45,12 @@ export default function CreateLeagueScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <ModalHeader title="Créer une ligue" onClose={() => router.back()} />
+      <ModalHeader title="Fonder ta ligue" onClose={() => router.back()} />
 
       <ScrollView className="flex-1 px-6" contentContainerClassName="gap-6 pb-8">
         <Input
-          label="Nom de la ligue"
-          placeholder="Ex : La Ligue du Jeudi"
+          label="Le nom de guerre"
+          placeholder="Ex : La Ligue du Jeudi, Les Inarrêtables..."
           value={name}
           onChangeText={setName}
           maxLength={30}
@@ -78,7 +78,7 @@ export default function CreateLeagueScreen() {
 
         {canCreate ? (
           <Card variant="elevated">
-            <Text className="text-text-muted text-xs mb-3">Aperçu</Text>
+            <Text className="text-text-muted text-xs mb-3">Ça donne ça 👇</Text>
             <View className="flex-row items-center gap-3">
               <Text className="text-3xl">{emoji}</Text>
               <View>
@@ -92,7 +92,7 @@ export default function CreateLeagueScreen() {
 
       <View className="px-6 mb-8">
         <Button
-          title="Créer ma ligue"
+          title="Lancer la ligue 🚀"
           size="lg"
           fullWidth
           disabled={!canCreate}

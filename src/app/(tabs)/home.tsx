@@ -47,9 +47,9 @@ export default function HomeScreen() {
       <Screen>
         <EmptyState
           emoji="🏓"
-          title="Bienvenue sur Smash Talk"
-          description="Crée ta première ligue ou rejoins celle de tes potes pour commencer à tracker vos matchs."
-          actionLabel="Créer une ligue"
+          title="L'arène t'attend"
+          description="Crée ta ligue, invite tes potes, et prouve que t'es le boss du padel."
+          actionLabel="Créer ma ligue"
           onAction={() => router.push("/league/create")}
           secondaryLabel="J'ai un code d'invitation"
           onSecondary={() => router.push("/league/join")}
@@ -91,7 +91,7 @@ export default function HomeScreen() {
       {/* Dernier match */}
       {lastMatch ? (
         <View>
-          <SectionHeader title="Dernier match" />
+          <SectionHeader title="Dernier combat" />
           <MatchCard
             teamA={[
               resolvePlayer(lastMatch.team_a_player_1),
@@ -108,11 +108,11 @@ export default function HomeScreen() {
         </View>
       ) : (
         <View>
-          <SectionHeader title="Dernier match" />
+          <SectionHeader title="Dernier combat" />
           <EmptyState
             emoji="🎾"
-            title="Aucun match"
-            description="Enregistre ton premier match avec le bouton + en bas."
+            title="Le terrain t'attend"
+            description="Premier match, première légende. Tape sur + et montre ce que tu vaux."
           />
         </View>
       )}
@@ -120,7 +120,7 @@ export default function HomeScreen() {
       {/* Top 3 classement */}
       {top3.length > 0 ? (
         <View>
-          <SectionHeader title="Classement" actionLabel="Voir tout" onAction={() => {}} />
+          <SectionHeader title="Qui domine ?" actionLabel="Voir tout" onAction={() => {}} />
           <View className="bg-surface-card rounded-xl overflow-hidden">
             {top3.map((r) => {
               const p = resolvePlayer(r.userId);

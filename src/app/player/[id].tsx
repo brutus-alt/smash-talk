@@ -41,9 +41,9 @@ export default function PlayerScreen() {
       <SafeAreaView className="flex-1 bg-surface">
         <ModalHeader title="Joueur" onClose={() => router.back()} />
         <EmptyState
-          emoji="❓"
-          title="Joueur introuvable"
-          description="Ce joueur n'existe pas dans la ligue."
+          emoji="👻"
+          title="Fantôme"
+          description="Ce joueur a disparu des radars. Peut-être qu'il fuit la compétition."
         />
       </SafeAreaView>
     );
@@ -84,7 +84,7 @@ export default function PlayerScreen() {
 
         {/* Stats */}
         <View>
-          <SectionHeader title="Statistiques" />
+          <SectionHeader title="Ses chiffres" />
           <Card>
             <StatRow label="Matchs joués" value={ranking.matches} />
             <Divider />
@@ -98,7 +98,7 @@ export default function PlayerScreen() {
 
         {/* Badges */}
         <View>
-          <SectionHeader title="Badges" subtitle={`${earnedCount}/12`} />
+          <SectionHeader title="Son palmarès" subtitle={`${earnedCount}/12`} />
           <Card>
             <View className="flex-row flex-wrap gap-3 justify-center py-1">
               {BADGES.slice(0, 6).map((badge) => (
@@ -117,7 +117,7 @@ export default function PlayerScreen() {
         {/* Rivalités — props résolues */}
         {playerRivalries.length > 0 ? (
           <View>
-            <SectionHeader title="Rivalités" />
+            <SectionHeader title="Ses rivaux" />
             <View className="gap-3">
               {playerRivalries.map((r, i) => (
                 <RivalryCard
@@ -136,7 +136,7 @@ export default function PlayerScreen() {
 
         {/* Matchs récents — props résolues */}
         <View>
-          <SectionHeader title="Derniers matchs" subtitle={`${playerMatches.length}`} />
+          <SectionHeader title="Ses derniers combats" subtitle={`${playerMatches.length}`} />
           <View className="gap-3">
             {playerMatches.map((m) => (
               <MatchCard
@@ -154,7 +154,7 @@ export default function PlayerScreen() {
         {/* Provoquer */}
         <View className="mt-2 mb-4">
           <Button
-            title={`Provoquer ${player.pseudo} 🎯`}
+            title={`Chambrer ${player.pseudo} 😈`}
             variant="secondary"
             size="lg"
             fullWidth

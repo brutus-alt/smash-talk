@@ -57,10 +57,10 @@ export default function OnboardingScreen() {
     <Screen className="px-6 pt-12">
       <View className="gap-2 mb-8">
         <Text className="text-text text-2xl font-bold">
-          Comment on t'appelle ?
+          Qui entre dans l'arène ?
         </Text>
         <Text className="text-text-secondary text-base">
-          Choisis un pseudo que tes potes reconnaîtront.
+          Choisis le blaze que tes rivaux vont redouter.
         </Text>
       </View>
 
@@ -68,7 +68,7 @@ export default function OnboardingScreen() {
       <View className="items-center gap-2 mb-8">
         <Avatar initials={initials} color={color} size="xl" />
         <Text className="text-text-muted text-sm">
-          Ton avatar dans les classements
+          Ta tête dans le classement
         </Text>
       </View>
 
@@ -87,7 +87,7 @@ export default function OnboardingScreen() {
       {/* CTA */}
       <View className="mt-auto mb-8">
         <Button
-          title="C'est parti"
+          title="Let's go 🔥"
           size="lg"
           fullWidth
           disabled={!canContinue}

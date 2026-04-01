@@ -39,8 +39,8 @@ export default function RankingScreen() {
       <Screen>
         <EmptyState
           emoji="🏆"
-          title="Pas de ligue"
-          description="Rejoins ou crée une ligue pour voir le classement."
+          title="Pas encore dans l'arène"
+          description="Rejoins une ligue pour voir qui écrase qui."
         />
       </Screen>
     );
@@ -48,7 +48,7 @@ export default function RankingScreen() {
 
   return (
     <Screen mode="scroll">
-      <SectionHeader title="Classement" subtitle={league?.name ?? ""} />
+      <SectionHeader title="Le classement" subtitle={league?.name ?? ""} />
       <SegmentedControl segments={SEGMENTS} value={view} onChange={setView} />
 
       {view === "individual" ? (
@@ -82,15 +82,15 @@ export default function RankingScreen() {
         ) : (
           <EmptyState
             emoji="🏆"
-            title="Classement vide"
-            description="Minimum 3 matchs joués pour apparaître. Le classement se construit au fil des matchs."
+            title="Tout reste à jouer"
+            description="Encore quelques matchs et on saura qui est le patron. Min. 3 matchs pour entrer au classement."
           />
         )
       ) : (
         <EmptyState
           emoji="🤝"
-          title="Par paire"
-          description="Le classement par paire arrivera bientôt."
+          title="Les duos arrivent"
+          description="Bientôt, tu pourras prouver que ta paire est imbattable. Patience."
         />
       )}
     </Screen>

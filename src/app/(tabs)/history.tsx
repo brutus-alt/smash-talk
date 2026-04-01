@@ -30,8 +30,8 @@ export default function HistoryScreen() {
       <Screen>
         <EmptyState
           emoji="📋"
-          title="Pas de ligue"
-          description="Rejoins ou crée une ligue pour voir l'historique."
+          title="Pas encore dans l'arène"
+          description="Rejoins une ligue pour que la mémoire collective commence."
         />
       </Screen>
     );
@@ -52,8 +52,8 @@ export default function HistoryScreen() {
       <Screen>
         <EmptyState
           emoji="📋"
-          title="Aucun match"
-          description="L'historique se remplira au fil des matchs. Enregistre ton premier match !"
+          title="Rien à raconter… pour l'instant"
+          description="Chaque match écrit l'histoire du groupe. Le premier chapitre t'attend."
         />
       </Screen>
     );
@@ -61,7 +61,7 @@ export default function HistoryScreen() {
 
   return (
     <Screen mode="scroll">
-      <SectionHeader title="Historique" subtitle={`${matches.length} matchs`} />
+      <SectionHeader title="La mémoire du groupe" subtitle={`${matches.length} matchs`} />
 
       <View className="gap-3">
         {matches.map((m) => (
