@@ -1,5 +1,6 @@
 import { Pressable, Text, Animated } from "react-native";
 import { usePressScale } from "../../lib/animations";
+import { hapticMedium } from "../../lib/haptics";
 
 /**
  * FAB — Floating Action Button pour l'ajout de match.
@@ -35,7 +36,7 @@ export function FAB({ onPress, label = "+" }: FABProps) {
       ]}
     >
       <Pressable
-        onPress={onPress}
+        onPress={() => { hapticMedium(); onPress(); }}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
         className="w-14 h-14 rounded-full bg-accent items-center justify-center"

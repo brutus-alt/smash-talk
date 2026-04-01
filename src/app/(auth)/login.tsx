@@ -6,6 +6,7 @@ import { Screen, Button, Input } from "../../components/ui";
 import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { useAuthStore } from "../../stores/auth.store";
 import { supabase } from "../../services/supabase";
+import { hapticSuccess, hapticError } from "../../lib/haptics";
 
 /**
  * Écran de connexion.

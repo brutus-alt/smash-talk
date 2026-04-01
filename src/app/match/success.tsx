@@ -6,6 +6,8 @@ import { Button } from "../../components/ui";
 import { ScaleBounce, FadeInUp } from "../../components/ui/animated-view";
 import { ShareMatchCard } from "../../components/share-match-card";
 import { useShare } from "../../hooks/use-share";
+import { hapticSuccess } from "../../lib/haptics";
+import { useEffect } from "react";
 
 /**
  * Écran de succès post-match.
@@ -17,6 +19,10 @@ import { useShare } from "../../hooks/use-share";
  */
 export default function MatchSuccessScreen() {
   const router = useRouter();
+
+  // Vibration de succès à l'arrivée sur l'écran
+  useEffect(() => { hapticSuccess(); }, []);
+
   const params = useLocalSearchParams<{
     teamANames: string;
     teamBNames: string;

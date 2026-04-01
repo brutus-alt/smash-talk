@@ -1,4 +1,5 @@
 import { View, Text, Pressable } from "react-native";
+import { hapticLight } from "../../lib/haptics";
 
 /**
  * Stepper — +/- pour la saisie de score (Arbitrages §3.1).
@@ -38,7 +39,7 @@ export function Stepper({
 
       <View className="flex-row items-center gap-3">
         <Pressable
-          onPress={onDecrement}
+          onPress={() => { hapticLight(); onDecrement(); }}
           disabled={!canDecrement}
           className={`
             w-12 h-12 rounded-xl items-center justify-center
@@ -60,7 +61,7 @@ export function Stepper({
         </Text>
 
         <Pressable
-          onPress={onIncrement}
+          onPress={() => { hapticLight(); onIncrement(); }}
           disabled={!canIncrement}
           className={`
             w-12 h-12 rounded-xl items-center justify-center

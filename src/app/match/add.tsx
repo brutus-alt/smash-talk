@@ -9,6 +9,7 @@ import { useLeagueStore } from "../../stores/league.store";
 import { useLeagueMembers } from "../../hooks/use-league-members";
 import { useAddMatch } from "../../hooks/use-add-match";
 import { determineWinner } from "../../domain/match-validation";
+import { hapticLight, hapticMedium, hapticSuccess, hapticError } from "../../lib/haptics";
 import type { SetScore } from "../../domain/types";
 
 /**
@@ -34,6 +35,7 @@ export default function AddMatchScreen() {
   ]);
 
   const togglePlayer = (id: string) => {
+    hapticLight();
     if (selected.includes(id)) {
       setSelected(selected.filter((s) => s !== id));
     } else if (selected.length < 4) {
@@ -69,6 +71,7 @@ export default function AddMatchScreen() {
 
     const winner = determineWinner(sets);
     if (!winner) {
+      hapticError();
       Alert.alert("Score invalide", "Impossible de déterminer le gagnant. Vérifie les scores.");
       return;
     }
@@ -90,8 +93,10 @@ export default function AddMatchScreen() {
         winner,
       });
 
+      hapticSuccess();
       router.back();
     } catch (err) {
+      hapticError();
       const message = err instanceof Error ? err.message : "Erreur inconnue";
       Alert.alert("Erreur", message);
     }
@@ -159,7 +164,7 @@ export default function AddMatchScreen() {
               size="lg"
               fullWidth
               disabled={selected.length !== 4}
-              onPress={() => setStep(1)}
+              onPress={() => { hapticMedium(); setStep(1); }}
             />
           </View>
         </View>
@@ -205,7 +210,7 @@ export default function AddMatchScreen() {
           ))}
 
           <View className="mt-auto mb-6">
-            <Button title="Suivant" size="lg" fullWidth onPress={() => setStep(2)} />
+            <Button title="Suivant" size="lg" fullWidth onPress={() => { hapticMedium(); setStep(2); }} />
           </View>
         </View>
       ) : null}

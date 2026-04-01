@@ -1,7 +1,5 @@
 import { View, Text, Pressable } from "react-native";
-
-/**
- * SegmentedControl — onglets inline pour basculer entre des vues.
+import { hapticLight } from "../../lib/haptics";
  *
  * Usages :
  * - Classement : "Individuel" | "Par paire"
@@ -37,7 +35,7 @@ export function SegmentedControl<T extends string>({
         return (
           <Pressable
             key={segment.value}
-            onPress={() => onChange(segment.value)}
+            onPress={() => { hapticLight(); onChange(segment.value); }}
             className={`
               flex-1 items-center justify-center py-2.5 rounded-lg
               ${isActive ? "bg-surface-elevated" : "bg-transparent"}

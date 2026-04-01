@@ -8,6 +8,7 @@ import { FadeInUp } from "../../components/ui/animated-view";
 import { useAuthStore } from "../../stores/auth.store";
 import { useLeagueStore } from "../../stores/league.store";
 import { useCreateLeague } from "../../hooks/use-leagues";
+import { hapticSuccess, hapticError } from "../../lib/haptics";
 
 /**
  * Modale de création de ligue — branchée sur Supabase.
