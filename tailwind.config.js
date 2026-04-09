@@ -5,11 +5,6 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
-      /**
-       * ─── COULEURS ───
-       * Palette restreinte (Arbitrages §6.3).
-       * Chaque couleur a un rôle unique. Pas de couleur sans usage.
-       */
       colors: {
         surface: {
           DEFAULT: "#0A0A0F",
@@ -22,6 +17,11 @@ module.exports = {
           light: "#4ADE80",
           dark: "#16A34A",
           muted: "rgba(34, 197, 94, 0.12)",
+        },
+        cyan: {
+          DEFAULT: "#06D6A0",
+          light: "#22E5B5",
+          dark: "#04A87C",
         },
         danger: {
           DEFAULT: "#EF4444",
@@ -47,6 +47,7 @@ module.exports = {
         lg: "16px",
         xl: "20px",
         "2xl": "24px",
+        "3xl": "32px",
         full: "9999px",
       },
       fontFamily: {
@@ -64,6 +65,12 @@ module.exports = {
         "3xl": ["30px", { lineHeight: "36px" }],
         "4xl": ["36px", { lineHeight: "40px" }],
         "5xl": ["48px", { lineHeight: "52px" }],
+        "6xl": ["60px", { lineHeight: "64px" }],
+        "7xl": ["72px", { lineHeight: "76px" }],
+        "8xl": ["96px", { lineHeight: "100px" }],
+      },
+      letterSpacing: {
+        tightest: "-0.075em",
       },
     },
   },

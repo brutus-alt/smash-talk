@@ -1,14 +1,21 @@
-import { Pressable, Text, Animated } from "react-native";
+import { Pressable, Text, Animated, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { usePressScale } from "../../lib/animations";
 import { hapticMedium } from "../../lib/haptics";
+import { colors, glows } from "../../lib/theme";
 
 /**
- * FAB — Floating Action Button pour l'ajout de match.
+ * FAB — Floating Action Button pour ajout de match.
  *
- * Toujours visible au-dessus de la tab bar (Arbitrages §6.1).
- * Couleur accent forte. CTA principal de toute l'app.
+ * Design premium :
+ * - Pill allongee avec icone + label
+ * - Gradient signature vert -> cyan
+ * - Glow vert sous le bouton
+ * - Press scale animation
+ * - Position bas-droite, au-dessus de la tab bar
  *
- * Animation : press scale (réduit à 0.9 au tap, rebond au relâchement).
+ * Plus moderne qu'un FAB rond classique : suit les patterns Linear/Arc/Notion 2024+.
  */
 
 type FABProps = {
@@ -16,34 +23,54 @@ type FABProps = {
   label?: string;
 };
 
-export function FAB({ onPress, label = "+" }: FABProps) {
-  const { style: pressStyle, onPressIn, onPressOut } = usePressScale(0.9);
+export function FAB({ onPress, label = "Match" }: FABProps) {
+  const { style: pressStyle, onPressIn, onPressOut } = usePressScale(0.94);
 
   return (
     <Animated.View
       style={[
         {
           position: "absolute",
-          bottom: 112,
-          right: 20,
-          elevation: 8,
-          shadowColor: "#22C55E",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
+          bottom: 102,
+          right: 16,
         },
+        glows.accent,
         pressStyle,
       ]}
     >
       <Pressable
-        onPress={() => { hapticMedium(); onPress(); }}
+        onPress={() => {
+          hapticMedium();
+          onPress();
+        }}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
-        className="w-14 h-14 rounded-full bg-accent items-center justify-center"
       >
-        <Text className="text-surface text-2xl font-bold leading-none">
-          {label}
-        </Text>
+        <LinearGradient
+          colors={colors.gradient.primary as unknown as string[]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            paddingHorizontal: 18,
+            paddingVertical: 14,
+            borderRadius: 999,
+          }}
+        >
+          <Ionicons name="add" size={22} color={colors.surface.base} />
+          <Text
+            style={{
+              color: colors.surface.base,
+              fontSize: 15,
+              fontWeight: "800",
+              letterSpacing: -0.2,
+            }}
+          >
+            {label}
+          </Text>
+        </LinearGradient>
       </Pressable>
     </Animated.View>
   );

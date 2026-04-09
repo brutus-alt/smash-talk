@@ -94,7 +94,7 @@ export default function OnboardingScreen() {
       {/* CTA */}
       <View className="mt-auto mb-8">
         <Button
-          title="Let's go 🔥"
+          title="C'est parti"
           size="lg"
           fullWidth
           disabled={!canContinue}

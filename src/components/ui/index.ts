@@ -1,10 +1,10 @@
 /**
- * Design system — exports centralisés.
+ * Design system — exports centralises.
  *
- * Règle de co-location (Audit v2 §11.1) :
- * - Composant utilisé par 2+ écrans → vit ici.
- * - Composant utilisé par 1 seul écran → vit à côté de cet écran.
- * - Composant utilisé par 0 écran → n'existe pas.
+ * Regle de co-location (Audit v2 §11.1) :
+ * - Composant utilise par 2+ ecrans -> vit ici.
+ * - Composant utilise par 1 seul ecran -> vit a cote de cet ecran.
+ * - Composant utilise par 0 ecran -> n'existe pas.
  */
 
 // Layout
@@ -14,6 +14,10 @@ export { Divider } from "./divider";
 
 // Animations
 export { FadeInUp, FadeIn, ScaleBounce } from "./animated-view";
+
+// Branding
+export { Logo } from "./logo";
+export { MeshGradient } from "./mesh-gradient";
 
 // Actions
 export { Button } from "./button";

@@ -1,21 +1,28 @@
-import { Pressable, Text, ActivityIndicator, View } from "react-native";
+import { Pressable, Text, ActivityIndicator, View, Animated } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import type { PressableProps } from "react-native";
 import type { ReactNode } from "react";
-import { colors } from "../../lib/theme";
+import { colors, glows } from "../../lib/theme";
+import { usePressScale } from "../../lib/animations";
 
 /**
- * Bouton du design system.
+ * Button du design system — version premium.
  *
  * Variantes :
- * - primary   → fond accent vert, texte sombre. CTA principal.
- * - secondary → fond elevated, bordure subtile. Actions secondaires.
- * - danger    → fond rouge. Suppressions, actions destructives.
- * - ghost     → transparent. Actions tertiaires, liens inline.
+ * - primary   -> gradient vert -> cyan + glow vert. CTA principal.
+ * - secondary -> fond elevated, bordure subtile.
+ * - danger    -> fond rouge plein.
+ * - ghost     -> transparent, hover elevated.
+ *
+ * Effets premium :
+ * - Glow vert sous le primary (boxShadow)
+ * - Press scale animation (Reanimated)
+ * - Gradient direction diagonale
  *
  * Tailles :
- * - sm → compact (dans les cartes)
- * - md → standard
- * - lg → plein écran, CTA de bas de page
+ * - sm -> compact (dans les cards)
+ * - md -> standard
+ * - lg -> CTA plein ecran
  */
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
@@ -31,37 +38,10 @@ type ButtonProps = Omit<PressableProps, "children"> & {
   iconRight?: ReactNode;
 };
 
-const containerClass: Record<ButtonVariant, string> = {
-  primary: "bg-accent",
-  secondary: "bg-surface-elevated border border-surface-border",
-  danger: "bg-danger",
-  ghost: "bg-transparent",
-};
-
-const pressedClass: Record<ButtonVariant, string> = {
-  primary: "bg-accent-dark",
-  secondary: "bg-surface-card border border-surface-border",
-  danger: "bg-danger-dark",
-  ghost: "bg-surface-elevated",
-};
-
-const textClass: Record<ButtonVariant, string> = {
-  primary: "text-surface font-bold",
-  secondary: "text-text font-semibold",
-  danger: "text-white font-bold",
-  ghost: "text-text-secondary font-semibold",
-};
-
-const sizeClass: Record<ButtonSize, string> = {
-  sm: "px-3.5 py-2 rounded-lg",
-  md: "px-5 py-3 rounded-xl",
-  lg: "px-6 py-4 rounded-xl",
-};
-
-const textSizeClass: Record<ButtonSize, string> = {
-  sm: "text-sm",
-  md: "text-base",
-  lg: "text-lg",
+const sizeMap: Record<ButtonSize, { paddingX: number; paddingY: number; radius: number; fontSize: number }> = {
+  sm: { paddingX: 14, paddingY: 8, radius: 12, fontSize: 14 },
+  md: { paddingX: 20, paddingY: 12, radius: 14, fontSize: 16 },
+  lg: { paddingX: 24, paddingY: 16, radius: 16, fontSize: 17 },
 };
 
 export function Button({
@@ -76,40 +56,100 @@ export function Button({
   ...props
 }: ButtonProps) {
   const isDisabled = disabled || isLoading;
+  const { style: pressStyle, onPressIn, onPressOut } = usePressScale(0.97);
+  const dims = sizeMap[size];
 
   const loaderColor =
     variant === "primary" ? colors.surface.base :
     variant === "danger" ? "#FFFFFF" :
     colors.text.primary;
 
-  return (
-    <Pressable
-      disabled={isDisabled}
-      {...props}
+  const textColor =
+    variant === "primary" ? colors.surface.base :
+    variant === "danger" ? "#FFFFFF" :
+    variant === "ghost" ? colors.text.secondary :
+    colors.text.primary;
+
+  // Wrapper container : applique le glow + press scale
+  const containerStyle = [
+    {
+      alignSelf: fullWidth ? ("stretch" as const) : ("flex-start" as const),
+      opacity: isDisabled ? 0.4 : 1,
+    },
+    variant === "primary" && !isDisabled ? glows.accent : {},
+    pressStyle,
+  ];
+
+  // Contenu interne du bouton
+  const innerContent = (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        paddingHorizontal: dims.paddingX,
+        paddingVertical: dims.paddingY,
+      }}
     >
-      {({ pressed }) => (
-        <View
-          className={`
-            flex-row items-center justify-center gap-2
-            ${sizeClass[size]}
-            ${pressed && !isDisabled ? pressedClass[variant] : containerClass[variant]}
-            ${fullWidth ? "w-full" : "self-start"}
-            ${isDisabled ? "opacity-40" : ""}
-          `}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={loaderColor} size="small" />
-          ) : (
-            <>
-              {iconLeft ?? null}
-              <Text className={`${textClass[variant]} ${textSizeClass[size]}`}>
-                {title}
-              </Text>
-              {iconRight ?? null}
-            </>
-          )}
-        </View>
+      {isLoading ? (
+        <ActivityIndicator color={loaderColor} size="small" />
+      ) : (
+        <>
+          {iconLeft}
+          <Text
+            style={{
+              color: textColor,
+              fontSize: dims.fontSize,
+              fontWeight: "700",
+              letterSpacing: -0.2,
+            }}
+          >
+            {title}
+          </Text>
+          {iconRight}
+        </>
       )}
-    </Pressable>
+    </View>
+  );
+
+  return (
+    <Animated.View style={containerStyle}>
+      <Pressable
+        disabled={isDisabled}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        {...props}
+      >
+        {variant === "primary" ? (
+          <LinearGradient
+            colors={colors.gradient.primary as unknown as string[]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              borderRadius: dims.radius,
+              overflow: "hidden",
+            }}
+          >
+            {innerContent}
+          </LinearGradient>
+        ) : (
+          <View
+            style={{
+              borderRadius: dims.radius,
+              backgroundColor:
+                variant === "secondary" ? colors.surface.elevated :
+                variant === "danger" ? colors.danger.base :
+                "transparent",
+              borderWidth: variant === "secondary" ? 1 : 0,
+              borderColor: colors.surface.border,
+              overflow: "hidden",
+            }}
+          >
+            {innerContent}
+          </View>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }

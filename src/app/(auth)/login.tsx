@@ -1,23 +1,30 @@
 import { View, Text, Alert, Keyboard } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 
-import { Screen, Button, Input } from "../../components/ui";
+import { Screen, Button, Input, Logo, MeshGradient } from "../../components/ui";
 import { FadeInUp, ScaleBounce } from "../../components/ui/animated-view";
 import { useAuthStore } from "../../stores/auth.store";
 import { supabase } from "../../services/supabase";
-import { hapticSuccess, hapticError } from "../../lib/haptics";
+import { colors } from "../../lib/theme";
 
 /**
- * Écran de connexion.
+ * Ecran de connexion — version premium.
  *
  * MVP : Magic Link (email) + Dev Login.
- * Apple/Google Sign-In ajoutés avant le déploiement App Store.
+ * Apple/Google Sign-In ajoutes avant le deploiement App Store.
+ *
+ * Design :
+ * - MeshGradient en fond pour profondeur
+ * - Logo SVG (monogramme ST avec gradient)
+ * - Wordmark "Smash Talk" en typo XXL
+ * - CTA gradient avec glow
  *
  * Flow Magic Link :
  * 1. L'utilisateur entre son email
  * 2. Supabase envoie un lien par email
- * 3. L'utilisateur clique le lien → session créée automatiquement
+ * 3. L'utilisateur clique le lien -> session creee automatiquement
  *    via le listener onAuthStateChange dans _layout.tsx
  */
 export default function LoginScreen() {
@@ -75,60 +82,104 @@ export default function LoginScreen() {
     router.replace("/(tabs)/home");
   };
 
-  // Écran de confirmation après envoi
+  // Ecran de confirmation apres envoi
   if (emailSent) {
     return (
-      <Screen className="justify-center gap-6 px-6">
-        <View className="items-center gap-4">
-          <Text className="text-5xl">📬</Text>
-          <Text className="text-text text-2xl font-bold text-center">
-            Check tes mails
-          </Text>
-          <Text className="text-text-secondary text-base text-center leading-6 max-w-xs">
-            On t'a envoyé un lien magique à{"\n"}
-            <Text className="text-accent font-semibold">{email}</Text>
-            {"\n"}Clique dessus pour te connecter.
-          </Text>
-        </View>
+      <Screen className="justify-center px-6">
+        <MeshGradient intensity="subtle" />
+        <View className="items-center" style={{ gap: 24 }}>
+          <View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 40,
+              backgroundColor: colors.accent.muted,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Ionicons name="mail" size={36} color={colors.accent.base} />
+          </View>
+          <View className="items-center" style={{ gap: 12 }}>
+            <Text
+              className="text-text text-center"
+              style={{
+                fontSize: 32,
+                fontWeight: "900",
+                letterSpacing: -1,
+              }}
+            >
+              Check tes mails
+            </Text>
+            <Text
+              className="text-text-secondary text-base text-center"
+              style={{ lineHeight: 24, maxWidth: 280 }}
+            >
+              On t'a envoye un lien magique a{"\n"}
+              <Text className="text-accent font-semibold">{email}</Text>
+              {"\n"}Clique dessus pour te connecter.
+            </Text>
+          </View>
 
-        <View className="gap-3 mt-8">
-          <Button
-            title="Renvoyer le lien"
-            variant="secondary"
-            size="lg"
-            fullWidth
-            onPress={() => {
-              setEmailSent(false);
-              handleMagicLink();
-            }}
-          />
-          <Button
-            title="Changer d'email"
-            variant="ghost"
-            size="md"
-            fullWidth
-            onPress={() => {
-              setEmailSent(false);
-              setEmail("");
-            }}
-          />
+          <View style={{ width: "100%", gap: 12, marginTop: 24 }}>
+            <Button
+              title="Renvoyer le lien"
+              variant="secondary"
+              size="lg"
+              fullWidth
+              onPress={() => {
+                setEmailSent(false);
+                handleMagicLink();
+              }}
+            />
+            <Button
+              title="Changer d'email"
+              variant="ghost"
+              size="md"
+              fullWidth
+              onPress={() => {
+                setEmailSent(false);
+                setEmail("");
+              }}
+            />
+          </View>
         </View>
       </Screen>
     );
   }
 
   return (
-    <Screen className="justify-center gap-6 px-6">
-      {/* Branding */}
+    <Screen className="justify-center px-6">
+      {/* Background mesh gradient */}
+      <MeshGradient intensity="normal" />
+
+      {/* Branding hero */}
       <ScaleBounce delay={0}>
-        <View className="items-center gap-3 mb-12">
-          <Text className="text-5xl">🏓</Text>
-          <Text className="text-text text-4xl font-bold tracking-tight">
-            Smash Talk
-          </Text>
-          <Text className="text-text-secondary text-base text-center leading-6">
-            Ton groupe. Tes rivaux.{"\n"}Tes légendes.
-          </Text>
+        <View className="items-center" style={{ gap: 20, marginBottom: 56 }}>
+          <Logo size="lg" />
+          <View className="items-center" style={{ gap: 8 }}>
+            <Text
+              className="text-text"
+              style={{
+                fontSize: 44,
+                fontWeight: "900",
+                letterSpacing: -2,
+                lineHeight: 48,
+              }}
+            >
+              Smash Talk
+            </Text>
+            <Text
+              className="text-text-secondary text-center"
+              style={{
+                fontSize: 16,
+                lineHeight: 24,
+                letterSpacing: -0.2,
+              }}
+            >
+              Ton groupe. Tes rivaux.{"\n"}Tes legendes.
+            </Text>
+          </View>
         </View>
       </ScaleBounce>
 
@@ -146,30 +197,32 @@ export default function LoginScreen() {
         />
       </FadeInUp>
 
-      {/* Magic Link button */}
+      {/* Magic Link CTA */}
       <FadeInUp delay={350}>
-        <Button
-          title="Entrer dans l'arène"
-          size="lg"
-          fullWidth
-          disabled={!isValidEmail}
-          isLoading={isLoading}
-          onPress={handleMagicLink}
-        />
+        <View style={{ marginTop: 16 }}>
+          <Button
+            title="Entrer dans l'arene"
+            size="lg"
+            fullWidth
+            disabled={!isValidEmail}
+            isLoading={isLoading}
+            onPress={handleMagicLink}
+          />
+        </View>
       </FadeInUp>
 
-      {/* Futur : Apple / Google */}
-      <View className="items-center mt-4">
+      {/* Note Apple/Google */}
+      <View className="items-center" style={{ marginTop: 20 }}>
         <Text className="text-text-muted text-xs">
-          Apple et Google Sign-In bientôt disponibles
+          Apple et Google Sign-In bientot disponibles
         </Text>
       </View>
 
       {/* Dev only */}
       {__DEV__ ? (
-        <View className="mt-6">
+        <View style={{ marginTop: 32 }}>
           <Button
-            title="🛠 Dev Login (test)"
+            title="Dev Login (test)"
             variant="ghost"
             size="md"
             fullWidth

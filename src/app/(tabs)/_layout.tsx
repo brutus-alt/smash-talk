@@ -3,13 +3,17 @@ import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { FAB } from "../../components/ui/fab";
+import { hapticLight } from "../../lib/haptics";
+import { colors } from "../../lib/theme";
 
 /**
  * Layout des tabs principales — 4 onglets (Arbitrages §6.1).
- * Home | Classement | Historique | Profil
+ * Arene | Classement | Matchs | Profil
  *
- * Le FAB (+ Match) est positionné dans ce layout,
+ * Le FAB (+ Match) est positionne dans ce layout,
  * toujours visible au-dessus de la tab bar.
+ *
+ * Haptic light a chaque switch d'onglet (touch perfectionnement premium).
  */
 
 type TabIconProps = {
@@ -22,7 +26,7 @@ function TabIcon({ name, focused }: TabIconProps) {
     <Ionicons
       name={name}
       size={22}
-      color={focused ? "#22C55E" : "#6B7280"}
+      color={focused ? colors.accent.base : colors.text.muted}
     />
   );
 }
@@ -33,28 +37,35 @@ export default function TabsLayout() {
   return (
     <View className="flex-1 bg-surface">
       <Tabs
+        screenListeners={{
+          tabPress: () => {
+            hapticLight();
+          },
+        }}
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: "#0A0A0F",
-            borderTopColor: "#1E1E2E",
+            backgroundColor: colors.surface.base,
+            borderTopColor: colors.surface.border,
             borderTopWidth: 1,
-            height: 85,
-            paddingBottom: 30,
-            paddingTop: 8,
+            height: 88,
+            paddingBottom: 32,
+            paddingTop: 10,
           },
-          tabBarActiveTintColor: "#22C55E",
-          tabBarInactiveTintColor: "#6B7280",
+          tabBarActiveTintColor: colors.accent.base,
+          tabBarInactiveTintColor: colors.text.muted,
           tabBarLabelStyle: {
             fontSize: 11,
-            fontWeight: "600",
+            fontWeight: "700",
+            letterSpacing: -0.1,
+            marginTop: 2,
           },
         }}
       >
         <Tabs.Screen
           name="home"
           options={{
-            title: "Arène",
+            title: "Arene",
             tabBarIcon: ({ focused }) => (
               <TabIcon name={focused ? "home" : "home-outline"} focused={focused} />
             ),
@@ -63,7 +74,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="ranking"
           options={{
-            title: "Ranking",
+            title: "Classement",
             tabBarIcon: ({ focused }) => (
               <TabIcon
                 name={focused ? "podium" : "podium-outline"}
@@ -77,7 +88,7 @@ export default function TabsLayout() {
           options={{
             title: "Matchs",
             tabBarIcon: ({ focused }) => (
-              <TabIcon name={focused ? "time" : "time-outline"} focused={focused} />
+              <TabIcon name={focused ? "tennisball" : "tennisball-outline"} focused={focused} />
             ),
           }}
         />
@@ -95,7 +106,7 @@ export default function TabsLayout() {
         />
       </Tabs>
 
-      {/* FAB — toujours visible au-dessus de la tab bar */}
+      {/* FAB — pill avec gradient + glow, toujours visible */}
       <FAB onPress={() => router.push("/match/add")} />
     </View>
   );

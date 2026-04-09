@@ -1,25 +1,30 @@
 /**
- * Kit d'animations — hooks réutilisables.
+ * Kit d'animations — hooks reutilisables.
  *
- * Basé sur l'API Animated native de React Native.
- * Zéro dépendance externe. Performant (thread natif via useNativeDriver).
+ * Base sur l'API Animated native de React Native.
+ * Zero dependance externe. Performant (thread natif via useNativeDriver).
  *
- * Chaque hook retourne un style animé à appliquer sur un Animated.View.
+ * Chaque hook retourne un style anime a appliquer sur un Animated.View.
+ *
+ * Philosophie premium :
+ * - Utilise spring (pas timing) pour un feel naturel
+ * - Stagger sur les listes pour rythme visuel
+ * - Press scale sur tout ce qui est tappable
  */
 
 import { useEffect, useRef } from "react";
 import { Animated, type ViewStyle } from "react-native";
 
 /**
- * Fade in + slide up à l'apparition du composant.
- * Usage : entrée d'écran, apparition de cartes, empty states.
+ * Fade in + slide up a l'apparition.
+ * Spring-based pour un feel premium (pas linaire).
  */
 export function useFadeInUp(
   delay: number = 0,
   duration: number = 400
 ): Animated.WithAnimatedObject<ViewStyle> {
   const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(16)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -29,10 +34,12 @@ export function useFadeInUp(
         delay,
         useNativeDriver: true,
       }),
-      Animated.timing(translateY, {
+      Animated.spring(translateY, {
         toValue: 0,
-        duration,
         delay,
+        damping: 15,
+        stiffness: 100,
+        mass: 1,
         useNativeDriver: true,
       }),
     ]).start();
@@ -42,8 +49,7 @@ export function useFadeInUp(
 }
 
 /**
- * Fade in simple (sans déplacement).
- * Usage : éléments qui apparaissent sans mouvement.
+ * Fade in simple (sans deplacement).
  */
 export function useFadeIn(
   delay: number = 0,
@@ -64,30 +70,40 @@ export function useFadeIn(
 }
 
 /**
- * Scale bounce — effet de rebond à l'apparition.
- * Usage : badges débloqués, célébrations, FAB.
+ * Scale bounce — effet de rebond a l'apparition.
+ * Usage : badges debloques, celebrations, hero elements.
  */
 export function useScaleBounce(
   delay: number = 0
 ): Animated.WithAnimatedObject<ViewStyle> {
-  const scale = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0.6)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.spring(scale, {
-      toValue: 1,
-      delay,
-      friction: 4,
-      tension: 100,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 250,
+        delay,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        delay,
+        damping: 12,
+        stiffness: 180,
+        mass: 0.8,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, []);
 
-  return { transform: [{ scale }] };
+  return { opacity, transform: [{ scale }] };
 }
 
 /**
- * Pulse continu — pulsation légère qui se répète.
- * Usage : indicateur de série en cours, éléments qui attirent l'attention.
+ * Pulse continu — pulsation legere qui se repete.
+ * Usage : indicateur de serie en cours, elements qui attirent l'attention.
  */
 export function usePulse(
   minScale: number = 0.95,
@@ -119,7 +135,7 @@ export function usePulse(
 }
 
 /**
- * Stagger — anime des éléments en cascade avec un délai progressif.
+ * Stagger — anime des elements en cascade.
  * Retourne une fonction qui donne le style pour chaque index.
  */
 export function useStagger(
@@ -129,7 +145,7 @@ export function useStagger(
   const animations = useRef(
     Array.from({ length: count }, () => ({
       opacity: new Animated.Value(0),
-      translateY: new Animated.Value(12),
+      translateY: new Animated.Value(16),
     }))
   ).current;
 
@@ -142,10 +158,11 @@ export function useStagger(
           delay: i * staggerDelay,
           useNativeDriver: true,
         }),
-        Animated.timing(anim.translateY, {
+        Animated.spring(anim.translateY, {
           toValue: 0,
-          duration: 350,
           delay: i * staggerDelay,
+          damping: 15,
+          stiffness: 110,
           useNativeDriver: true,
         }),
       ])
@@ -165,9 +182,9 @@ export function useStagger(
 }
 
 /**
- * Press scale — réduit la taille au press, revient au relâchement.
- * Usage : boutons, cartes pressables.
- * Retourne { scale, onPressIn, onPressOut } à brancher sur le composant.
+ * Press scale — reduit la taille au press, revient au relachement.
+ * Usage : boutons, cards pressables.
+ * Spring-based, feeling tactile premium.
  */
 export function usePressScale(scaleDown: number = 0.96) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -175,8 +192,8 @@ export function usePressScale(scaleDown: number = 0.96) {
   const onPressIn = () => {
     Animated.spring(scale, {
       toValue: scaleDown,
-      friction: 8,
-      tension: 200,
+      damping: 18,
+      stiffness: 350,
       useNativeDriver: true,
     }).start();
   };
@@ -184,8 +201,8 @@ export function usePressScale(scaleDown: number = 0.96) {
   const onPressOut = () => {
     Animated.spring(scale, {
       toValue: 1,
-      friction: 4,
-      tension: 150,
+      damping: 12,
+      stiffness: 180,
       useNativeDriver: true,
     }).start();
   };
